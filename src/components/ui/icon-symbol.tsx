@@ -18,6 +18,9 @@ const MAPPING = {
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
+  'viewfinder': 'center-focus-strong', // Mapped to MaterialIcons 'center-focus-strong'
+  'chart.bar.fill': 'bar-chart',
+  'rectangle.grid.2x2.fill': 'grid-view',
 } as IconMapping;
 
 /**

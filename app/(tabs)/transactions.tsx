@@ -41,7 +41,7 @@ export default function TransactionsScreen() {
                     />
                 </View>
 
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-3 mt-3">
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-3 mt-4">
                     {['All', 'Income', 'Expense', 'Transport', 'Food'].map(f => {
                         const isSelected = filter === f;
                         return (
@@ -79,13 +79,6 @@ export default function TransactionsScreen() {
                     </View>
                 ))}
             </ScrollView>
-
-            {/* Floating Action Button */}
-            <View className="absolute bottom-6 right-6">
-                <TouchableOpacity className="w-16 h-16 bg-black dark:bg-white rounded-full items-center justify-center shadow-lg">
-                    <IconSymbol name="plus" size={32} color="white" />
-                </TouchableOpacity>
-            </View>
         </ThemedView>
     );
 }

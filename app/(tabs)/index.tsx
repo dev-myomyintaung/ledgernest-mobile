@@ -154,14 +154,6 @@ export default function DashboardScreen() {
         </View>
 
       </ScrollView>
-
-      {/* Floating Action Button */}
-      <TouchableOpacity
-        className="absolute bottom-6 right-6 w-14 h-14 bg-black dark:bg-white rounded-full items-center justify-center z-50"
-        activeOpacity={0.8}
-      >
-        <IconSymbol name="plus" size={30} color={isDark ? "black" : "white"} />
-      </TouchableOpacity>
     </ThemedView>
   );
 }
