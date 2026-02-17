@@ -21,6 +21,26 @@ const MAPPING = {
   'viewfinder': 'center-focus-strong', // Mapped to MaterialIcons 'center-focus-strong'
   'chart.bar.fill': 'bar-chart',
   'rectangle.grid.2x2.fill': 'grid-view',
+  'xmark': 'close',
+  'checkmark': 'check',
+  'cart.fill': 'shopping-cart',
+  'cup.and.saucer.fill': 'local-cafe',
+  'car.fill': 'directions-car',
+  'lightbulb.fill': 'lightbulb',
+  'film.fill': 'movie',
+  'cross.case.fill': 'medical-services',
+  'bag.fill': 'shopping-bag',
+  'archivebox.fill': 'inventory-2',
+  'dollarsign.circle.fill': 'monetization-on',
+  'briefcase.fill': 'work',
+  'star.fill': 'star',
+  'fork.knife': 'restaurant',
+  'gamecontroller.fill': 'sports-esports',
+  'gift.fill': 'card-giftcard',
+  'book.fill': 'menu-book',
+  'heart.fill': 'favorite',
+  'bolt.fill': 'bolt',
+  'wifi': 'wifi',
 } as IconMapping;
 
 /**
