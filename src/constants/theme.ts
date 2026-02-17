@@ -5,25 +5,51 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+const tintColorLight = '#2563EB'; // Finsweet Blue
+const tintColorDark = '#3B82F6';
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
+    text: '#1F2937',
+    background: '#FFFFFF',
     tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    icon: '#6B7280',
+    tabIconDefault: '#9CA3AF',
     tabIconSelected: tintColorLight,
+
+    // Semantic Colors
+    primary: tintColorLight,
+    secondary: '#4B5563',
+    success: '#10B981',
+    info: '#3B82F6',
+    warning: '#F59E0B',
+    danger: '#EF4444',
+
+    // Component Colors
+    card: '#F3F4F6',
+    border: '#E5E7EB',
+    notification: '#EF4444',
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    text: '#F9FAFB',
+    background: '#111827',
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
+    icon: '#9CA3AF',
+    tabIconDefault: '#6B7280',
     tabIconSelected: tintColorDark,
+
+    // Semantic Colors
+    primary: tintColorDark,
+    secondary: '#D1D5DB',
+    success: '#34D399',
+    info: '#60A5FA',
+    warning: '#FBBF24',
+    danger: '#F87171',
+
+    // Component Colors
+    card: '#1F2937',
+    border: '#374151',
+    notification: '#F87171',
   },
 };
 
