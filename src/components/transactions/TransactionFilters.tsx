@@ -39,21 +39,13 @@ export const TransactionFilters = ({ filters, onToggleFilter, categories }: Tran
                             onPress={() => onToggleFilter("types", chip.id)}
                             className={`flex-row items-center px-4 py-1 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}
                         >
-                            {isSelected ? (
-                                <IconSymbol
-                                    name="checkmark.circle.fill"
-                                    size={18}
-                                    color={isDark ? "#000" : "#fff"}
-                                    style={{ marginRight: 8 }}
-                                />
-                            ) : (
-                                <IconSymbol
-                                    name={chip.icon as any}
-                                    size={18}
-                                    color={isDark ? "#a1a1aa" : "#71717a"}
-                                    style={{ marginRight: 8 }}
-                                />
-                            )}
+
+                            <IconSymbol
+                                name={chip.icon as any}
+                                size={18}
+                                color={isSelected ? (isDark ? "#000" : "#fff") : (isDark ? "#a1a1aa" : "#71717a")}
+                                style={{ marginRight: 8 }}
+                            />
                             <Text
                                 className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-900 dark:text-gray-100"}`}
                             >
@@ -75,21 +67,13 @@ export const TransactionFilters = ({ filters, onToggleFilter, categories }: Tran
                             onPress={() => onToggleFilter("sources", chip.id)}
                             className={`flex-row items-center px-4 py-3 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}
                         >
-                            {isSelected ? (
-                                <IconSymbol
-                                    name="checkmark.circle.fill"
-                                    size={18}
-                                    color={isDark ? "#000" : "#fff"}
-                                    style={{ marginRight: 8 }}
-                                />
-                            ) : (
-                                <IconSymbol
-                                    name={chip.icon as any}
-                                    size={18}
-                                    color={isDark ? "#a1a1aa" : "#71717a"}
-                                    style={{ marginRight: 8 }}
-                                />
-                            )}
+
+                            <IconSymbol
+                                name={chip.icon as any}
+                                size={18}
+                                color={isSelected ? (isDark ? "#000" : "#fff") : (isDark ? "#a1a1aa" : "#71717a")}
+                                style={{ marginRight: 8 }}
+                            />
                             <Text
                                 className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-900 dark:text-gray-100"}`}
                             >
@@ -109,18 +93,11 @@ export const TransactionFilters = ({ filters, onToggleFilter, categories }: Tran
                             onPress={() => onToggleFilter("categoryIds", category.id)}
                             className={`flex-row items-center px-4 py-3 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}
                         >
-                            {isSelected ? (
-                                <IconSymbol
-                                    name="checkmark.circle.fill"
-                                    size={18}
-                                    color={isDark ? "#000" : "#fff"}
-                                    style={{ marginRight: 8 }}
-                                />
-                            ) : categoryIcon.includes(".") ? (
+                            {categoryIcon.includes(".") ? (
                                 <IconSymbol
                                     name={categoryIcon as any}
                                     size={18}
-                                    color={isDark ? "#a1a1aa" : "#71717a"}
+                                    color={isSelected ? (isDark ? "#000" : "#fff") : (isDark ? "#a1a1aa" : "#71717a")}
                                     style={{ marginRight: 8 }}
                                 />
                             ) : (

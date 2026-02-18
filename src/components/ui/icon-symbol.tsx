@@ -58,6 +58,13 @@ const MAPPING = {
   'questionmark': 'help-outline',
   'person.circle.fill': 'account-circle',
   'rectangle.portrait.and.arrow.right': 'logout',
+  'arrow.down.circle': 'arrow-drop-down-circle',
+  'arrow.up.circle': 'arrow-circle-up',
+  'doc.text': 'article',
+  'pencil': 'edit',
+  'xmark.circle.fill': 'cancel',
+  'checkmark.circle.fill': 'check-circle',
+  'folder': 'folder',
 } as IconMapping;
 
 /**

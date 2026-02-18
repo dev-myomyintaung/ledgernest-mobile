@@ -12,7 +12,7 @@ interface SearchBarProps {
 export const SearchBar = ({ value, onChangeText, placeholder = "Search transactions..." }: SearchBarProps) => {
     return (
         <View className="px-6 mb-4">
-            <View className="bg-gray-100 dark:bg-gray-800 rounded-xl flex-row items-center px-4 py-3">
+            <View className="bg-gray-100 dark:bg-gray-800 rounded-xl flex-row items-center px-4 py-1">
                 <IconSymbol name="magnifyingglass" size={18} color="#999" />
                 <TextInput
                     placeholder={placeholder}
