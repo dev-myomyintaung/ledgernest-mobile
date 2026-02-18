@@ -1,50 +1,76 @@
-# Welcome to your Expo app 👋
+# LedgerNest Mobile App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Expo + React Native client for personal budgets, categories, transactions, and receipt scanning.
 
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Setup
 
 ```bash
-npm run reset-project
+cd mobile
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Set API base URL:
 
-## Learn more
+```bash
+export EXPO_PUBLIC_API_URL=http://localhost:3000/api
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Run the app:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npx expo start
+```
 
-## Join the community
+## Main Flows
 
-Join our community of developers creating universal apps.
+### Transactions (Live API)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Transactions screen now uses backend data from `GET /transactions` (no mock rows).
+
+It maps:
+- `description` -> title
+- `amount` + `type` -> signed amount
+- `date` -> relative/locale label
+- `category.name/color/icon` -> subtitle + icon badge
+- `receiptItem.receipt` -> grouped receipt sections (store/date/total)
+- `receiptItemId` absent -> shown under manual entries
+
+### Receipt Scan + Review
+
+1. Tap center FAB in tab bar.
+2. Opens `/scan` screen.
+3. Choose camera or gallery (`expo-image-picker`).
+4. App uploads to `/receipts/upload`.
+5. App attempts OCR via `/receipts/:id/process`.
+6. Opens `/receipt-review?receiptId=...`.
+7. User reviews/edits items and confirms via `/receipts/:id/confirm`.
+
+## Routes
+
+- `/(tabs)/index`
+- `/(tabs)/transactions`
+- `/(tabs)/budget`
+- `/(tabs)/categories`
+- `/create-category`
+- `/scan`
+- `/receipt-review`
+
+## Key Mobile Data Hooks
+
+- `src/hooks/useTransactions.ts`
+- `src/hooks/useReceipts.ts`
+- `src/hooks/useCategories.ts`
+
+## Key API Clients
+
+- `src/api/endpoints/transactions.ts`
+- `src/api/endpoints/receipts.ts`
+- `src/api/endpoints/categories.ts`
+
+## Notes
+
+- `expo-image-picker` is required for camera/gallery upload.
+- Receipt confirm response shape is:
+  - `{ receiptId: string, transactionsCreated: number }`
+- Receipt status values handled in mobile:
+  - `pending`, `processing`, `processed`, `confirmed`, `error`

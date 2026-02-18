@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, Stack, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -20,7 +20,6 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterScreen() {
-    const router = useRouter();
     const {
         control,
         handleSubmit,
@@ -78,10 +77,11 @@ export default function RegisterScreen() {
                         name="password"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <TextInput
-                                className={`w-full bg-gray-100 dark:bg-gray-800 p-4 rounded-xl border ${errors.password ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'
-                                    } text-black dark:text-white`}
+                                className={`w-full p-4 rounded-xl border ${errors.password ? 'border-red-500' : 'border-black dark:border-white'
+                                    } text-white`}
+                                style={{ backgroundColor: '#111111' }}
                                 placeholder="Create a password"
-                                placeholderTextColor="#9CA3AF"
+                                placeholderTextColor="#a1a1aa"
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 value={value}
@@ -101,10 +101,11 @@ export default function RegisterScreen() {
                         name="confirmPassword"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <TextInput
-                                className={`w-full bg-gray-100 dark:bg-gray-800 p-4 rounded-xl border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'
-                                    } text-black dark:text-white`}
+                                className={`w-full p-4 rounded-xl border ${errors.confirmPassword ? 'border-red-500' : 'border-black dark:border-white'
+                                    } text-white`}
+                                style={{ backgroundColor: '#111111' }}
                                 placeholder="Confirm your password"
-                                placeholderTextColor="#9CA3AF"
+                                placeholderTextColor="#a1a1aa"
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 value={value}
@@ -118,17 +119,17 @@ export default function RegisterScreen() {
                 </View>
 
                 <TouchableOpacity
-                    className="bg-blue-600 p-4 rounded-xl items-center mt-4"
+                    className="bg-black dark:bg-white p-4 rounded-xl items-center mt-4"
                     onPress={handleSubmit(onSubmit)}
                 >
-                    <Text className="text-white font-semibold text-lg">Sign Up</Text>
+                    <Text className="text-white dark:text-black font-semibold text-lg">Sign Up</Text>
                 </TouchableOpacity>
 
                 <View className="flex-row justify-center mt-6">
                     <ThemedText className="text-gray-500">Already have an account? </ThemedText>
                     <Link href="/(auth)/login" asChild>
                         <TouchableOpacity>
-                            <ThemedText type="defaultSemiBold" className="text-blue-600">Log In</ThemedText>
+                            <ThemedText type="defaultSemiBold" className="text-black dark:text-white">Log In</ThemedText>
                         </TouchableOpacity>
                     </Link>
                 </View>

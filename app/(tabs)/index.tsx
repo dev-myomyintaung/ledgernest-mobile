@@ -6,6 +6,7 @@ import { BarChart } from 'react-native-gifted-charts';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { getFloatingTabContentPaddingBottom } from '@/constants/layout';
 
 // Mock data for Rounded Bar Chart (Black/Monochrome)
 const barData = [
@@ -27,6 +28,7 @@ const recentTransactions = [
 
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const screenWidth = Dimensions.get('window').width;
@@ -36,10 +38,13 @@ export default function DashboardScreen() {
   const paddingX = 48;
   const chartAvailableWidth = screenWidth - paddingX;
   const spacing = (chartAvailableWidth - (barData.length * barWidth)) / (barData.length - 1);
+  const contentPaddingBottom = getFloatingTabContentPaddingBottom(insets.bottom);
 
   return (
     <ThemedView style={{ flex: 1, paddingTop: insets.top }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: contentPaddingBottom }}>
 
         {/* Top Section - Balance & Date */}
         <View className="px-6 pt-4 pb-0">
@@ -49,8 +54,11 @@ export default function DashboardScreen() {
               <ThemedText className="text-2xl font-bold">Jan 2025</ThemedText>
               <IconSymbol name="chevron.down" size={20} color={isDark ? "white" : "black"} />
             </View>
-            <TouchableOpacity>
-              <IconSymbol name="square.and.pencil" size={20} color={isDark ? "gray" : "gray"} />
+            <TouchableOpacity
+              onPress={() => router.push('/profile')}
+              className="w-9 h-9 rounded-full border border-zinc-200 dark:border-zinc-700 items-center justify-center"
+            >
+              <IconSymbol name="person.circle.fill" size={19} color={isDark ? "#d4d4d8" : "#3f3f46"} />
             </TouchableOpacity>
           </View>
 

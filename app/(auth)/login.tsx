@@ -1,12 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, Stack, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { z } from 'zod';
 
+import { useLogin } from '@/hooks/useAuth';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const loginSchema = z.object({
     email: z.string().email('Invalid email address'),
@@ -15,11 +17,9 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-import { useLogin } from '@/hooks/useAuth';
-import { ActivityIndicator } from 'react-native';
-
 export default function LoginScreen() {
-    const router = useRouter();
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === 'dark';
     const { mutate: login, isPending } = useLogin();
 
     const {
@@ -95,22 +95,22 @@ export default function LoginScreen() {
                 </View>
 
                 <TouchableOpacity
-                    className="bg-blue-600 p-4 rounded-xl items-center mt-4"
+                    className="bg-black dark:bg-white p-4 rounded-xl items-center mt-4"
                     onPress={handleSubmit(onSubmit)}
                     disabled={isPending}
                 >
                     {isPending ? (
-                        <ActivityIndicator color="white" />
+                        <ActivityIndicator color={isDark ? '#111111' : '#ffffff'} />
                     ) : (
-                        <Text className="text-white font-semibold text-lg">Log In</Text>
+                        <Text className="text-white dark:text-black font-semibold text-lg">Log In</Text>
                     )}
                 </TouchableOpacity>
 
                 <View className="flex-row justify-center mt-6">
-                    <ThemedText className="text-gray-500">Don't have an account? </ThemedText>
+                    <ThemedText className="text-gray-500">Don&apos;t have an account? </ThemedText>
                     <Link href="/(auth)/register" asChild>
                         <TouchableOpacity>
-                            <ThemedText type="defaultSemiBold" className="text-blue-600">Sign Up</ThemedText>
+                            <ThemedText type="defaultSemiBold" className="text-black dark:text-white">Sign Up</ThemedText>
                         </TouchableOpacity>
                     </Link>
                 </View>

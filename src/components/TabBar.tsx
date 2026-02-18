@@ -2,16 +2,23 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import {
+    FLOATING_TAB_DOCK_HEIGHT,
+    FLOATING_TAB_FAB_SIZE,
+    getFloatingTabBottomOffset,
+} from '@/constants/layout';
 
-const TAB_HEIGHT = 68;
-const CENTER_BUTTON_SIZE = 62;
+const TAB_HEIGHT = FLOATING_TAB_DOCK_HEIGHT;
+const CENTER_BUTTON_SIZE = FLOATING_TAB_FAB_SIZE;
 const FAB_SPACE = 64;
 const HORIZONTAL_MARGIN = 16;
 
 export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     const insets = useSafeAreaInsets();
+    const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
 
@@ -21,7 +28,7 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     const dockBorder = isDark ? '#27272a' : '#e5e7eb';
     const fabBackground = isDark ? '#ffffff' : '#000000';
     const fabIconColor = isDark ? '#000000' : '#ffffff';
-    const bottomOffset = Math.max(insets.bottom > 0 ? insets.bottom - 4 : 10, 8);
+    const bottomOffset = getFloatingTabBottomOffset(insets.bottom);
 
     const routes = state.routes;
 
@@ -85,10 +92,12 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                 <TouchableOpacity
                     style={[styles.fab, { backgroundColor: fabBackground }]}
                     onPress={() => {
-                        const budgetRoute = routes.find((route) => route.name === 'budget');
-                        if (budgetRoute) {
-                            navigation.navigate('budget');
+                        const parentNavigation = navigation.getParent();
+                        if (parentNavigation) {
+                            parentNavigation.navigate('scan' as never);
+                            return;
                         }
+                        router.push('/scan');
                     }}>
                     <IconSymbol name="viewfinder" size={28} color={fabIconColor} />
                 </TouchableOpacity>

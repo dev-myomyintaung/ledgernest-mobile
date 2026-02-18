@@ -1,6 +1,5 @@
-import { View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
 import { ThemedText } from '@/components/ui/themed-text';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { CategoryItem } from './CategoryItem';
 import { Category } from '@/api/endpoints/categories';
 
@@ -36,7 +35,10 @@ export const CategoryList = ({
     }
 
     return (
-        <ScrollView contentContainerStyle={{ paddingBottom: 100 }} className="px-6">
+        <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 100 }}
+            className="px-6">
             <View className="flex-row flex-wrap justify-between gap-y-4">
                 {categories.map((cat) => (
                     <CategoryItem key={cat.id} category={cat} onPress={onCategoryPress} />

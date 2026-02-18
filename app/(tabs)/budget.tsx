@@ -87,7 +87,10 @@ export default function BudgetScreen() {
                 <ThemedText className="text-gray-500 mt-1">April 2024 Overview</ThemedText>
             </View>
 
-            <ScrollView contentContainerStyle={{ paddingBottom: 110 }} className="px-6">
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 110 }}
+                className="px-6">
                 <View className="mb-6 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-5">
                     <View className="flex-row items-start justify-between">
                         <View className="flex-1 pr-4">

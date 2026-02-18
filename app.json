@@ -1,26 +1,42 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "LedgerNest",
+    "slug": "ledgernest",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.png",
-    "scheme": "mobile",
+    "splash": {
+      "image": "./src/assets/images/splash-transparent.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0b0b0c"
+    },
+    "scheme": "ledgernest",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.myomyintaung.developer.mobile"
+      "bundleIdentifier": "com.myomyintaung.developer.mobile",
+      "infoPlist": {
+        "NSCameraUsageDescription": "We use your camera to scan receipts and extract transaction details.",
+        "NSPhotoLibraryUsageDescription": "We use your photo library so you can upload receipt images for processing.",
+        "NSPhotoLibraryAddUsageDescription": "We may save processed receipt previews to your photo library when you choose to export them."
+      }
     },
     "android": {
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_EXTERNAL_STORAGE"
+      ],
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0b0b0c",
         "foregroundImage": "./src/assets/images/android-icon-foreground.png",
         "backgroundImage": "./src/assets/images/android-icon-background.png",
         "monochromeImage": "./src/assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.myomyintaung.developer.mobile"
     },
     "web": {
       "output": "static",
@@ -29,12 +45,19 @@
     "plugins": [
       "expo-router",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow access to your photos so you can choose receipt images.",
+          "cameraPermission": "Allow camera access so you can scan receipts."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
-          "image": "./src/assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "image": "./src/assets/images/splash-transparent.png",
+          "imageWidth": 1,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#0b0b0c",
           "dark": {
             "backgroundColor": "#000000"
           }
