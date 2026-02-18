@@ -27,61 +27,9 @@ export const TransactionFilters = ({ filters, onToggleFilter, categories }: Tran
                 className="flex-row"
                 contentContainerStyle={{ paddingHorizontal: 0, gap: 8, paddingBottom: 4 }}
             >
-                {/* Type filters */}
-                {[
-                    { id: "income" as const, label: "Income", icon: "arrow.down.circle" },
-                    { id: "expense" as const, label: "Expense", icon: "arrow.up.circle" },
-                ].map((chip) => {
-                    const isSelected = filters.types.includes(chip.id);
-                    return (
-                        <TouchableOpacity
-                            key={chip.id}
-                            onPress={() => onToggleFilter("types", chip.id)}
-                            className={`flex-row items-center px-4 py-1 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}
-                        >
 
-                            <IconSymbol
-                                name={chip.icon as any}
-                                size={18}
-                                color={isSelected ? (isDark ? "#000" : "#fff") : (isDark ? "#a1a1aa" : "#71717a")}
-                                style={{ marginRight: 8 }}
-                            />
-                            <Text
-                                className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-900 dark:text-gray-100"}`}
-                            >
-                                {chip.label}
-                            </Text>
-                        </TouchableOpacity>
-                    );
-                })}
 
-                {/* Source filters */}
-                {[
-                    { id: "receipt" as const, label: "Receipts", icon: "doc.text" },
-                    { id: "manual" as const, label: "Manual", icon: "pencil" },
-                ].map((chip) => {
-                    const isSelected = filters.sources.includes(chip.id);
-                    return (
-                        <TouchableOpacity
-                            key={chip.id}
-                            onPress={() => onToggleFilter("sources", chip.id)}
-                            className={`flex-row items-center px-4 py-3 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}
-                        >
 
-                            <IconSymbol
-                                name={chip.icon as any}
-                                size={18}
-                                color={isSelected ? (isDark ? "#000" : "#fff") : (isDark ? "#a1a1aa" : "#71717a")}
-                                style={{ marginRight: 8 }}
-                            />
-                            <Text
-                                className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-900 dark:text-gray-100"}`}
-                            >
-                                {chip.label}
-                            </Text>
-                        </TouchableOpacity>
-                    );
-                })}
 
                 {/* Categories */}
                 {categories.map((category) => {
