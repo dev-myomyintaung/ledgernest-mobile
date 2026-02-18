@@ -21,6 +21,7 @@ import { Transaction } from "@/api/endpoints/transactions";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { getFloatingTabContentPaddingBottom } from "@/constants/layout";
 import { useFilteredTransactions, FilterState, FilterType, FilterSource } from "@/hooks/useFilteredTransactions";
+import { useCategories } from "@/hooks/useCategories";
 type ReceiptGroup = {
   key: string;
   receiptId: string | null;
@@ -118,6 +119,7 @@ export default function TransactionsScreen() {
   });
   const [search, setSearch] = useState("");
   const { data: transactions = [], isLoading, error } = useTransactions();
+  const { data: categories = [] } = useCategories();
   const contentPaddingBottom = getFloatingTabContentPaddingBottom(
     insets.bottom,
   );
@@ -152,29 +154,7 @@ export default function TransactionsScreen() {
     setFilters({ types: [], sources: [], categoryIds: [], dateRange: { start: null, end: null } });
   };
 
-  const categoryFilters = useMemo(() => {
-    const byCategory = new Map<
-      string,
-      { id: string; name: string; count: number }
-    >();
-    for (const tx of transactions) {
-      if (!tx.category) continue;
-      const found = byCategory.get(tx.category.id);
-      if (found) {
-        found.count += 1;
-      } else {
-        byCategory.set(tx.category.id, {
-          id: tx.category.id,
-          name: tx.category.name,
-          count: 1,
-        });
-      }
-    }
 
-    return [...byCategory.values()]
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-  }, [transactions]);
 
   const filteredTransactions = useFilteredTransactions(transactions, filters, search);
 
@@ -473,10 +453,11 @@ export default function TransactionsScreen() {
             bottom: 0,
             left: 0,
             right: 0,
+            maxHeight: "85%",
             backgroundColor: isDark ? "#18181b" : "#ffffff",
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
-            padding: 24,
+            paddingTop: 24,
             paddingBottom: Math.max(insets.bottom, 16) + 16,
           }}
         >
@@ -493,7 +474,7 @@ export default function TransactionsScreen() {
           />
 
           {/* Header row */}
-          <View className="flex-row justify-between items-center mb-6">
+          <View className="flex-row justify-between items-center mb-6 px-6">
             <ThemedText type="defaultSemiBold" style={{ fontSize: 18 }}>
               Filter
             </ThemedText>
@@ -515,7 +496,7 @@ export default function TransactionsScreen() {
             </View>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={true} className="px-6">
             {/* Date Range */}
             <View>
               <ThemedText className="text-xs tracking-widest text-gray-400 mb-3">
@@ -556,16 +537,17 @@ export default function TransactionsScreen() {
               </View>
             )}
 
-            {/* Transaction type */}
-            <View className="mt-2">
+            {/* Combined Filters */}
+            <View>
               <ThemedText className="text-xs tracking-widest text-gray-400 mb-3">
-                TRANSACTION TYPE
+                FILTERS
               </ThemedText>
               <View className="flex-row flex-wrap gap-2 mb-5">
+                {/* Transaction type */}
                 {(
                   [
-                    { id: "income" as const, label: "Income" },
-                    { id: "expense" as const, label: "Expense" },
+                    { id: "income" as const, label: "Income", icon: "arrow.down.circle" },
+                    { id: "expense" as const, label: "Expense", icon: "arrow.up.circle" },
                   ] as const
                 ).map((chip) => {
                   const isSelected = filters.types.includes(chip.id);
@@ -573,29 +555,37 @@ export default function TransactionsScreen() {
                     <TouchableOpacity
                       key={chip.id}
                       onPress={() => toggleFilter("types", chip.id)}
-                      className={`px-5 py-2.5 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-transparent border-gray-200 dark:border-gray-700"}`}
+                      className={`flex-row items-center px-4 py-3 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}
                     >
+                      {isSelected ? (
+                        <IconSymbol
+                          name="checkmark.circle.fill"
+                          size={18}
+                          color={isDark ? "#000" : "#fff"}
+                          style={{ marginRight: 8 }}
+                        />
+                      ) : (
+                        <IconSymbol
+                          name={chip.icon as any}
+                          size={18}
+                          color={isDark ? "#a1a1aa" : "#71717a"}
+                          style={{ marginRight: 8 }}
+                        />
+                      )}
                       <Text
-                        className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-500"}`}
+                        className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-900 dark:text-gray-100"}`}
                       >
                         {chip.label}
                       </Text>
                     </TouchableOpacity>
                   );
                 })}
-              </View>
-            </View>
 
-            {/* Source */}
-            <View className="mt-2">
-              <ThemedText className="text-xs tracking-widest text-gray-400 mb-3">
-                SOURCE
-              </ThemedText>
-              <View className="flex-row flex-wrap gap-2 mb-5">
+                {/* Source */}
                 {(
                   [
-                    { id: "receipt" as const, label: "Receipts" },
-                    { id: "manual" as const, label: "Manual" },
+                    { id: "receipt" as const, label: "Receipts", icon: "doc.text" },
+                    { id: "manual" as const, label: "Manual", icon: "pencil" },
                   ] as const
                 ).map((chip) => {
                   const isSelected = filters.sources.includes(chip.id);
@@ -603,47 +593,72 @@ export default function TransactionsScreen() {
                     <TouchableOpacity
                       key={chip.id}
                       onPress={() => toggleFilter("sources", chip.id)}
-                      className={`px-5 py-2.5 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-transparent border-gray-200 dark:border-gray-700"}`}
+                      className={`flex-row items-center px-4 py-3 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}
                     >
+                      {isSelected ? (
+                        <IconSymbol
+                          name="checkmark.circle.fill"
+                          size={18}
+                          color={isDark ? "#000" : "#fff"}
+                          style={{ marginRight: 8 }}
+                        />
+                      ) : (
+                        <IconSymbol
+                          name={chip.icon as any}
+                          size={18}
+                          color={isDark ? "#a1a1aa" : "#71717a"}
+                          style={{ marginRight: 8 }}
+                        />
+                      )}
                       <Text
-                        className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-500"}`}
+                        className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-900 dark:text-gray-100"}`}
                       >
                         {chip.label}
                       </Text>
                     </TouchableOpacity>
                   );
                 })}
+
+                {/* Categories */}
+                {categories.map((category) => {
+                  const isSelected = filters.categoryIds.includes(category.id);
+                  // Find the icon for the category if available, otherwise default
+                  const categoryIcon = category.icon || "folder";
+
+                  return (
+                    <TouchableOpacity
+                      key={category.id}
+                      onPress={() => toggleFilter("categoryIds", category.id)}
+                      className={`flex-row items-center px-4 py-3 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}
+                    >
+                      {isSelected ? (
+                        <IconSymbol
+                          name="checkmark.circle.fill"
+                          size={18}
+                          color={isDark ? "#000" : "#fff"}
+                          style={{ marginRight: 8 }}
+                        />
+                      ) : categoryIcon.includes(".") ? (
+                        <IconSymbol
+                          name={categoryIcon as any}
+                          size={18}
+                          color={isDark ? "#a1a1aa" : "#71717a"}
+                          style={{ marginRight: 8 }}
+                        />
+                      ) : (
+                        <Text style={{ fontSize: 16, marginRight: 8 }}>
+                          {categoryIcon}
+                        </Text>
+                      )}
+                      <Text
+                        className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-900 dark:text-gray-100"}`}
+                      >
+                        {category.name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
-            </View>
-
-
-            {/* Categories */}
-            <View className="mt-2">
-              {categoryFilters.length > 0 && (
-                <>
-                  <ThemedText className="text-xs tracking-widest text-gray-400 mb-3">
-                    CATEGORIES
-                  </ThemedText>
-                  <View className="flex-row flex-wrap gap-2">
-                    {categoryFilters.map((category) => {
-                      const isSelected = filters.categoryIds.includes(category.id);
-                      return (
-                        <TouchableOpacity
-                          key={category.id}
-                          onPress={() => toggleFilter("categoryIds", category.id)}
-                          className={`px-5 py-2.5 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-transparent border-gray-200 dark:border-gray-700"}`}
-                        >
-                          <Text
-                            className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-500"}`}
-                          >
-                            {category.name}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </>
-              )}
             </View>
           </ScrollView>
         </TouchableOpacity>
@@ -670,7 +685,7 @@ export default function TransactionsScreen() {
 
       {/* Search & Filter */}
       <View className="px-6 mb-4">
-        <View className="bg-gray-100 dark:bg-gray-800 rounded-xl flex-row items-center px-4 py-2">
+        <View className="bg-gray-100 dark:bg-gray-800 rounded-xl flex-row items-center px-4 py-3">
           <IconSymbol name="magnifyingglass" size={18} color="#999" />
           <TextInput
             placeholder="Search transactions..."
@@ -686,44 +701,112 @@ export default function TransactionsScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             className="flex-row"
-            contentContainerStyle={{ paddingTop: 12, paddingBottom: 4 }}
+            contentContainerStyle={{ paddingHorizontal: 0, gap: 8, paddingBottom: 4 }}
           >
             {/* Type filters */}
             {[
-              { id: "income" as const, label: "Income" },
-              { id: "expense" as const, label: "Expense" },
+              { id: "income" as const, label: "Income", icon: "arrow.down.circle" },
+              { id: "expense" as const, label: "Expense", icon: "arrow.up.circle" },
             ].map((chip) => {
               const isSelected = filters.types.includes(chip.id);
               return (
                 <TouchableOpacity
                   key={chip.id}
                   onPress={() => toggleFilter("types", chip.id)}
-                  className={`px-5 mr-2 py-2 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-transparent border-gray-200 dark:border-gray-700"}`}
+                  className={`flex-row items-center px-4 py-1 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}
                 >
+                  {isSelected ? (
+                    <IconSymbol
+                      name="checkmark.circle.fill"
+                      size={18}
+                      color={isDark ? "#000" : "#fff"}
+                      style={{ marginRight: 8 }}
+                    />
+                  ) : (
+                    <IconSymbol
+                      name={chip.icon as any}
+                      size={18}
+                      color={isDark ? "#a1a1aa" : "#71717a"}
+                      style={{ marginRight: 8 }}
+                    />
+                  )}
                   <Text
-                    className={`font-semibold text-sm ${isSelected ? "text-white dark:text-black" : "text-gray-500"}`}
+                    className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-900 dark:text-gray-100"}`}
                   >
                     {chip.label}
                   </Text>
                 </TouchableOpacity>
               );
             })}
+
             {/* Source filters */}
             {[
-              { id: "receipt" as const, label: "Receipts" },
-              { id: "manual" as const, label: "Manual" },
+              { id: "receipt" as const, label: "Receipts", icon: "doc.text" },
+              { id: "manual" as const, label: "Manual", icon: "pencil" },
             ].map((chip) => {
               const isSelected = filters.sources.includes(chip.id);
               return (
                 <TouchableOpacity
                   key={chip.id}
                   onPress={() => toggleFilter("sources", chip.id)}
-                  className={`px-5 mr-2 py-2 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-transparent border-gray-200 dark:border-gray-700"}`}
+                  className={`flex-row items-center px-4 py-3 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}
                 >
+                  {isSelected ? (
+                    <IconSymbol
+                      name="checkmark.circle.fill"
+                      size={18}
+                      color={isDark ? "#000" : "#fff"}
+                      style={{ marginRight: 8 }}
+                    />
+                  ) : (
+                    <IconSymbol
+                      name={chip.icon as any}
+                      size={18}
+                      color={isDark ? "#a1a1aa" : "#71717a"}
+                      style={{ marginRight: 8 }}
+                    />
+                  )}
                   <Text
-                    className={`font-semibold text-sm ${isSelected ? "text-white dark:text-black" : "text-gray-500"}`}
+                    className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-900 dark:text-gray-100"}`}
                   >
                     {chip.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+            {/* Categories */}
+            {categories.map((category) => {
+              const isSelected = filters.categoryIds.includes(category.id);
+              const categoryIcon = category.icon || "folder";
+              return (
+                <TouchableOpacity
+                  key={category.id}
+                  onPress={() => toggleFilter("categoryIds", category.id)}
+                  className={`flex-row items-center px-4 py-3 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}
+                >
+                  {isSelected ? (
+                    <IconSymbol
+                      name="checkmark.circle.fill"
+                      size={18}
+                      color={isDark ? "#000" : "#fff"}
+                      style={{ marginRight: 8 }}
+                    />
+                  ) : categoryIcon.includes(".") ? (
+                    <IconSymbol
+                      name={categoryIcon as any}
+                      size={18}
+                      color={isDark ? "#a1a1aa" : "#71717a"}
+                      style={{ marginRight: 8 }}
+                    />
+                  ) : (
+                    <Text style={{ fontSize: 16, marginRight: 8 }}>
+                      {categoryIcon}
+                    </Text>
+                  )}
+                  <Text
+                    className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-900 dark:text-gray-100"}`}
+                  >
+                    {category.name}
                   </Text>
                 </TouchableOpacity>
               );

@@ -20,6 +20,12 @@ export const DateRangePicker = ({
     const [startDate, setStartDate] = useState<string | null>(initialStartDate || null);
     const [endDate, setEndDate] = useState<string | null>(initialEndDate || null);
 
+    // Sync state with props when they change (e.g. clear all)
+    React.useEffect(() => {
+        setStartDate(initialStartDate || null);
+        setEndDate(initialEndDate || null);
+    }, [initialStartDate, initialEndDate]);
+
     const markedDates = useMemo(() => {
         const marks: any = {};
 
