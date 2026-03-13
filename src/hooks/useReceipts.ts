@@ -62,6 +62,7 @@ export const useConfirmReceipt = () => {
             queryClient.invalidateQueries({ queryKey: ['receipts'] });
             queryClient.invalidateQueries({ queryKey: ['receipts', id] });
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
+            queryClient.invalidateQueries({ queryKey: ['budgets'] });
         },
     });
 };

@@ -5,7 +5,8 @@ import { useRouter } from 'expo-router';
 import { ThemedText } from "@/components/ui/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { formatAmount, formatReceiptGroupDate } from "@/utils/format";
+import { formatReceiptGroupDate } from "@/utils/format";
+import { useAppCurrency } from "@/hooks/useAppCurrency";
 import { TransactionItem } from './TransactionItem';
 import { TransactionSection } from '@/hooks/useTransactionSections';
 
@@ -20,6 +21,7 @@ export const TransactionList = ({ sections, isLoading, error, contentPaddingBott
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === "dark";
+    const { format } = useAppCurrency();
 
     const renderSectionHeader = ({
         section,
@@ -41,7 +43,7 @@ export const TransactionList = ({ sections, isLoading, error, contentPaddingBott
                             style={{ color: total > 0 ? "#10B981" : undefined }}
                         >
                             {totalPrefix}
-                            {formatAmount(total)}
+                            {format(total)}
                         </ThemedText>
                     </View>
                 </View>
@@ -86,7 +88,7 @@ export const TransactionList = ({ sections, isLoading, error, contentPaddingBott
                             style={{ color: total > 0 ? "#10B981" : undefined }}
                         >
                             {totalPrefix}
-                            {formatAmount(total)}
+                            {format(total)}
                         </ThemedText>
                         {canOpenReceipt ? (
                             <View className="mt-1 flex-row items-center gap-1">

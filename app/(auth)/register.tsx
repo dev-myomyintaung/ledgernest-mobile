@@ -39,7 +39,7 @@ export default function RegisterScreen() {
     };
 
     return (
-        <ThemedView className="flex-1 justify-center px-6">
+        <ThemedView className="flex-1 justify-center px-4">
             <View className="mb-8">
                 <ThemedText type="title" className="text-3xl font-bold mb-2">Create Account</ThemedText>
                 <ThemedText className="text-gray-500">Sign up to start tracking your budget</ThemedText>
@@ -53,8 +53,13 @@ export default function RegisterScreen() {
                         name="email"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <TextInput
-                                className={`w-full bg-gray-100 dark:bg-gray-800 p-4 rounded-xl border ${errors.email ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'
-                                    } text-black dark:text-white`}
+                                style={{
+                                    height: 52, borderRadius: 12, paddingHorizontal: 16,
+                                    borderWidth: 1, fontSize: 16, textAlignVertical: 'center',
+                                    backgroundColor: '#f3f4f6',
+                                    borderColor: errors.email ? '#ef4444' : '#e5e7eb',
+                                    color: '#000000',
+                                }}
                                 placeholder="Enter your email"
                                 placeholderTextColor="#9CA3AF"
                                 onBlur={onBlur}
@@ -77,9 +82,13 @@ export default function RegisterScreen() {
                         name="password"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <TextInput
-                                className={`w-full p-4 rounded-xl border ${errors.password ? 'border-red-500' : 'border-black dark:border-white'
-                                    } text-white`}
-                                style={{ backgroundColor: '#111111' }}
+                                style={{
+                                    height: 52, borderRadius: 12, paddingHorizontal: 16,
+                                    borderWidth: 1, fontSize: 16, textAlignVertical: 'center',
+                                    backgroundColor: '#111111',
+                                    borderColor: errors.password ? '#ef4444' : '#ffffff',
+                                    color: '#ffffff',
+                                }}
                                 placeholder="Create a password"
                                 placeholderTextColor="#a1a1aa"
                                 onBlur={onBlur}
@@ -101,9 +110,13 @@ export default function RegisterScreen() {
                         name="confirmPassword"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <TextInput
-                                className={`w-full p-4 rounded-xl border ${errors.confirmPassword ? 'border-red-500' : 'border-black dark:border-white'
-                                    } text-white`}
-                                style={{ backgroundColor: '#111111' }}
+                                style={{
+                                    height: 52, borderRadius: 12, paddingHorizontal: 16,
+                                    borderWidth: 1, fontSize: 16, textAlignVertical: 'center',
+                                    backgroundColor: '#111111',
+                                    borderColor: errors.confirmPassword ? '#ef4444' : '#ffffff',
+                                    color: '#ffffff',
+                                }}
                                 placeholder="Confirm your password"
                                 placeholderTextColor="#a1a1aa"
                                 onBlur={onBlur}

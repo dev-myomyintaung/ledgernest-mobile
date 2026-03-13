@@ -40,7 +40,7 @@ export default function LoginScreen() {
     };
 
     return (
-        <ThemedView className="flex-1 justify-center px-6">
+        <ThemedView className="flex-1 justify-center px-4">
             <View className="mb-8">
                 <ThemedText type="title" className="text-3xl font-bold mb-2">Welcome Back</ThemedText>
                 <ThemedText className="text-gray-500">Sign in to continue to your budget</ThemedText>
@@ -54,8 +54,13 @@ export default function LoginScreen() {
                         name="email"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <TextInput
-                                className={`w-full bg-gray-100 dark:bg-gray-800 p-4 rounded-xl border ${errors.email ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'
-                                    } text-black dark:text-white`}
+                                style={{
+                                    height: 52, borderRadius: 12, paddingHorizontal: 16,
+                                    borderWidth: 1, fontSize: 16, textAlignVertical: 'center',
+                                    backgroundColor: isDark ? '#1f2937' : '#f3f4f6',
+                                    borderColor: errors.email ? '#ef4444' : isDark ? '#374151' : '#e5e7eb',
+                                    color: isDark ? '#ffffff' : '#000000',
+                                }}
                                 placeholder="Enter your email"
                                 placeholderTextColor="#9CA3AF"
                                 onBlur={onBlur}
@@ -78,8 +83,13 @@ export default function LoginScreen() {
                         name="password"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <TextInput
-                                className={`w-full bg-gray-100 dark:bg-gray-800 p-4 rounded-xl border ${errors.password ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'
-                                    } text-black dark:text-white`}
+                                style={{
+                                    height: 52, borderRadius: 12, paddingHorizontal: 16,
+                                    borderWidth: 1, fontSize: 16, textAlignVertical: 'center',
+                                    backgroundColor: isDark ? '#1f2937' : '#f3f4f6',
+                                    borderColor: errors.password ? '#ef4444' : isDark ? '#374151' : '#e5e7eb',
+                                    color: isDark ? '#ffffff' : '#000000',
+                                }}
                                 placeholder="Enter your password"
                                 placeholderTextColor="#9CA3AF"
                                 onBlur={onBlur}
@@ -92,6 +102,14 @@ export default function LoginScreen() {
                     {errors.password && (
                         <Text className="text-red-500 text-sm mt-1">{errors.password.message}</Text>
                     )}
+                </View>
+
+                <View className="flex-row justify-end mt-2 mb-1">
+                    <Link href="/(auth)/forgot-password" asChild>
+                        <TouchableOpacity>
+                            <ThemedText className="text-gray-500 text-sm">Forgot password?</ThemedText>
+                        </TouchableOpacity>
+                    </Link>
                 </View>
 
                 <TouchableOpacity

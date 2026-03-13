@@ -65,6 +65,7 @@ const MAPPING = {
   'xmark.circle.fill': 'cancel',
   'checkmark.circle.fill': 'check-circle',
   'folder': 'folder',
+  'plus': 'add',
 } as IconMapping;
 
 /**

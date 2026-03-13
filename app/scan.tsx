@@ -37,10 +37,20 @@ export default function ScanScreen() {
 
   const [previewUri, setPreviewUri] = useState<string | null>(null);
   const [busyMessage, setBusyMessage] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
 
   const isBusy = uploadReceipt.isPending || processReceipt.isPending;
 
+  const rescan = () => {
+    setPreviewUri(null);
+    setFailed(false);
+    setBusyMessage(null);
+    uploadReceipt.reset();
+    processReceipt.reset();
+  };
+
   const pickImage = async (source: PickSource) => {
+    rescan();
     try {
       if (source === 'camera') {
         const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
@@ -75,20 +85,40 @@ export default function ScanScreen() {
       setPreviewUri(asset.uri);
 
       setBusyMessage('Uploading receipt...');
-      const receipt = await uploadReceipt.mutateAsync({
-        imageUri: asset.uri,
-        fileName: asset.fileName ?? `receipt-${Date.now()}.jpg`,
-        mimeType: getMimeType(asset.uri, asset.mimeType),
-      });
+      let receipt;
+      try {
+        receipt = await uploadReceipt.mutateAsync({
+          imageUri: asset.uri,
+          fileName: asset.fileName ?? `receipt-${Date.now()}.jpg`,
+          mimeType: getMimeType(asset.uri, asset.mimeType),
+        });
+      } catch {
+        setFailed(true);
+        Alert.alert('Upload failed', 'Could not upload this receipt image. Tap Re-scan to try again.');
+        return;
+      }
 
       setBusyMessage('Running OCR...');
       try {
         await processReceipt.mutateAsync(receipt.id);
       } catch {
+        setFailed(true);
         Alert.alert(
-          'OCR not finished',
-          'The receipt was uploaded. You can review it now and retry OCR from the review screen.'
+          'OCR failed',
+          'The receipt was uploaded but OCR could not run. You can review it manually or re-scan.',
+          [
+            {
+              text: 'Review anyway',
+              onPress: () =>
+                router.push({
+                  pathname: '/receipt-review',
+                  params: { receiptId: receipt!.id, localImageUri: asset.uri },
+                }),
+            },
+            { text: 'Re-scan', onPress: rescan },
+          ]
         );
+        return;
       }
 
       router.push({
@@ -98,8 +128,6 @@ export default function ScanScreen() {
           localImageUri: asset.uri,
         },
       });
-    } catch {
-      Alert.alert('Upload failed', 'Could not upload this receipt image.');
     } finally {
       setBusyMessage(null);
     }
@@ -107,7 +135,7 @@ export default function ScanScreen() {
 
   return (
     <ThemedView className="flex-1" style={{ paddingTop: Platform.OS === 'ios' ? 8 : insets.top }}>
-      <View className="px-6 py-3 border-b border-zinc-200 dark:border-zinc-800 flex-row items-center justify-between">
+      <View className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 flex-row items-center justify-between">
         <TouchableOpacity
           onPress={() => router.back()}
           className="w-10 h-10 rounded-full items-center justify-center border border-zinc-200 dark:border-zinc-700">
@@ -122,7 +150,7 @@ export default function ScanScreen() {
         <View className="w-10" />
       </View>
 
-      <View className="flex-1 px-6 pt-4 pb-6" style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
+      <View className="flex-1 px-4 pt-4 pb-6" style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
         <View className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-5 mb-4">
           <View className="flex-row items-center gap-3 mb-3">
             <View className="w-11 h-11 rounded-2xl bg-black dark:bg-white items-center justify-center">
@@ -175,6 +203,16 @@ export default function ScanScreen() {
               <ActivityIndicator />
               <ThemedText className="text-zinc-500">{busyMessage}</ThemedText>
             </View>
+          ) : null}
+
+          {failed && !isBusy ? (
+            <TouchableOpacity
+              onPress={rescan}
+              className="mt-3 h-11 rounded-xl border border-zinc-300 dark:border-zinc-700 items-center justify-center flex-row gap-2"
+            >
+              <IconSymbol name="arrow.clockwise" size={18} color={isDark ? '#d4d4d8' : '#3f3f46'} />
+              <ThemedText className="font-semibold">Re-scan</ThemedText>
+            </TouchableOpacity>
           ) : null}
         </View>
       </View>

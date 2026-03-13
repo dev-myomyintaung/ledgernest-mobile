@@ -7,7 +7,7 @@ export interface ReceiptItem {
     id: string;
     receiptId: string;
     name: string;
-    quantity: number;
+    quantity: string;
     price: string;
     totalPrice: string;
     createdAt: string;

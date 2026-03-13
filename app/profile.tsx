@@ -1,4 +1,4 @@
-import { Alert, Platform, TouchableOpacity, View } from 'react-native';
+import { Alert, Modal, Platform, ScrollView, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,7 +7,9 @@ import { ThemedText } from '@/components/ui/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuthStore } from '@/store/authStore';
+import { useSettingsStore, CURRENCIES, CurrencyOption } from '@/store/settingsStore';
 import { authApi } from '@/api/endpoints/auth';
+import { useState } from 'react';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -18,6 +20,10 @@ export default function ProfileScreen() {
 
   const user = useAuthStore((state) => state.user);
   const signOut = useAuthStore((state) => state.signOut);
+  const currency = useSettingsStore((s) => s.currency);
+  const setCurrency = useSettingsStore((s) => s.setCurrency);
+
+  const [currencySheetVisible, setCurrencySheetVisible] = useState(false);
 
   const handleLogout = () => {
     Alert.alert('Log out', 'Are you sure you want to log out?', [
@@ -31,7 +37,6 @@ export default function ProfileScreen() {
           } catch {
             // Continue local sign-out even if server logout fails.
           }
-
           await signOut();
           queryClient.clear();
           router.replace('/(auth)/login');
@@ -44,7 +49,7 @@ export default function ProfileScreen() {
 
   return (
     <ThemedView className="flex-1" style={{ paddingTop: Platform.OS === 'ios' ? 8 : insets.top }}>
-      <View className="px-6 py-3 border-b border-zinc-200 dark:border-zinc-800 flex-row items-center justify-between">
+      <View className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 flex-row items-center justify-between">
         <TouchableOpacity
           onPress={() => router.back()}
           className="w-10 h-10 rounded-full items-center justify-center border border-zinc-200 dark:border-zinc-700">
@@ -59,7 +64,8 @@ export default function ProfileScreen() {
         <View className="w-10" />
       </View>
 
-      <View className="flex-1 px-6 pt-4" style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
+      <View className="flex-1 px-4 pt-4" style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
+        {/* User card */}
         <View className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-5 mb-3">
           <View className="flex-row items-center gap-3">
             <View className="w-14 h-14 rounded-2xl bg-black dark:bg-white items-center justify-center">
@@ -74,6 +80,30 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        {/* Preferences */}
+        <View className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 mb-3 overflow-hidden">
+          <ThemedText className="text-xs tracking-widest text-zinc-500 px-5 pt-4 pb-2">
+            PREFERENCES
+          </ThemedText>
+
+          <TouchableOpacity
+            onPress={() => setCurrencySheetVisible(true)}
+            className="flex-row items-center justify-between px-5 py-4 border-t border-zinc-200 dark:border-zinc-800"
+          >
+            <View className="flex-row items-center gap-3">
+              <IconSymbol name="banknote.fill" size={18} color={isDark ? '#a1a1aa' : '#71717a'} />
+              <ThemedText className="text-sm">Currency</ThemedText>
+            </View>
+            <View className="flex-row items-center gap-2">
+              <ThemedText className="text-sm text-zinc-500">
+                {currency.symbol} · {currency.code}
+              </ThemedText>
+              <IconSymbol name="chevron.right" size={16} color={isDark ? '#52525b' : '#a1a1aa'} />
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* Logout */}
         <TouchableOpacity
           onPress={handleLogout}
           className="h-12 rounded-2xl border border-red-300 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30 px-4 flex-row items-center justify-center gap-2">
@@ -81,6 +111,73 @@ export default function ProfileScreen() {
           <ThemedText className="font-semibold text-red-600 dark:text-red-400">Log Out</ThemedText>
         </TouchableOpacity>
       </View>
+
+      {/* Currency picker sheet */}
+      <Modal visible={currencySheetVisible} transparent animationType="slide" onRequestClose={() => setCurrencySheetVisible(false)}>
+        <TouchableOpacity
+          activeOpacity={1}
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }}
+          onPress={() => setCurrencySheetVisible(false)}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: isDark ? '#18181b' : '#ffffff',
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              paddingBottom: Math.max(insets.bottom, 16) + 8,
+            }}
+          >
+            <View
+              style={{
+                width: 36, height: 4, borderRadius: 2,
+                backgroundColor: isDark ? '#52525b' : '#d4d4d8',
+                alignSelf: 'center', marginTop: 12, marginBottom: 20,
+              }}
+            />
+
+            <View className="flex-row justify-between items-center px-6 mb-4">
+              <ThemedText type="defaultSemiBold" style={{ fontSize: 18 }}>Currency</ThemedText>
+              <TouchableOpacity onPress={() => setCurrencySheetVisible(false)}>
+                <IconSymbol name="xmark.circle.fill" size={28} color={isDark ? '#71717a' : '#a1a1aa'} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {CURRENCIES.map((c: CurrencyOption) => {
+                const selected = c.code === currency.code;
+                return (
+                  <TouchableOpacity
+                    key={c.code}
+                    onPress={() => { setCurrency(c); setCurrencySheetVisible(false); }}
+                    className="flex-row items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800"
+                  >
+                    <View className="flex-row items-center gap-4">
+                      <View
+                        className="w-10 h-10 rounded-2xl items-center justify-center"
+                        style={{ backgroundColor: isDark ? '#27272a' : '#f4f4f5' }}
+                      >
+                        <ThemedText className="font-semibold text-sm">{c.symbol}</ThemedText>
+                      </View>
+                      <View>
+                        <ThemedText type="defaultSemiBold" className="text-sm">{c.code}</ThemedText>
+                        <ThemedText className="text-xs text-zinc-500">{c.label}</ThemedText>
+                      </View>
+                    </View>
+                    {selected ? (
+                      <IconSymbol name="checkmark.circle.fill" size={22} color={isDark ? '#ffffff' : '#111111'} />
+                    ) : null}
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
     </ThemedView>
   );
 }

@@ -5,12 +5,15 @@ import { User } from '../api/endpoints/auth';
 
 interface AuthState {
     user: User | null;
-    token: string | null;
+    accessToken: string | null;
+    refreshToken: string | null;
     isAuthenticated: boolean;
     isLoading: boolean;
 
-    signIn: (token: string, user: User) => Promise<void>;
+    signIn: (accessToken: string, refreshToken: string, user: User) => Promise<void>;
     signOut: () => Promise<void>;
+    /** Called by the Axios interceptor after a successful token refresh. */
+    updateTokens: (accessToken: string, refreshToken: string) => void;
     hydrate: () => Promise<void>;
 }
 
@@ -31,38 +34,32 @@ export const useAuthStore = create<AuthState>()(
     persist(
         (set, get) => ({
             user: null,
-            token: null,
+            accessToken: null,
+            refreshToken: null,
             isAuthenticated: false,
             isLoading: true,
 
-            signIn: async (token, user) => {
-                set({ token, user, isAuthenticated: true, isLoading: false });
+            signIn: async (accessToken, refreshToken, user) => {
+                set({ accessToken, refreshToken, user, isAuthenticated: true, isLoading: false });
             },
 
             signOut: async () => {
-                set({ token: null, user: null, isAuthenticated: false, isLoading: false });
+                set({ accessToken: null, refreshToken: null, user: null, isAuthenticated: false, isLoading: false });
+            },
+
+            updateTokens: (accessToken, refreshToken) => {
+                set({ accessToken, refreshToken });
             },
 
             hydrate: async () => {
                 try {
                     set({ isLoading: true });
                     await useAuthStore.persist.rehydrate();
-                    let token = get().token;
-
-                    // Backward compatibility: migrate legacy plain "token" key into persisted auth store.
-                    if (!token) {
-                        const legacyToken = await SecureStore.getItemAsync('token');
-                        if (legacyToken) {
-                            token = legacyToken;
-                            set({ token: legacyToken, isAuthenticated: true });
-                            await SecureStore.deleteItemAsync('token');
-                        }
-                    }
-
-                    set({ isAuthenticated: !!token, isLoading: false });
+                    const accessToken = get().accessToken;
+                    set({ isAuthenticated: !!accessToken, isLoading: false });
                 } catch (error) {
                     console.error('Failed to hydrate auth state:', error);
-                    set({ token: null, user: null, isAuthenticated: false, isLoading: false });
+                    set({ accessToken: null, refreshToken: null, user: null, isAuthenticated: false, isLoading: false });
                 }
             },
         }),
@@ -71,21 +68,33 @@ export const useAuthStore = create<AuthState>()(
             storage: createJSONStorage(() => secureStoreStorage),
             partialize: (state) => ({
                 user: state.user,
-                token: state.token,
+                accessToken: state.accessToken,
+                refreshToken: state.refreshToken,
             }),
             onRehydrateStorage: () => (state, error) => {
                 if (error) {
                     console.error('Failed to rehydrate auth store:', error);
-                    useAuthStore.setState({ token: null, user: null, isAuthenticated: false, isLoading: false });
+                    useAuthStore.setState({ accessToken: null, refreshToken: null, user: null, isAuthenticated: false, isLoading: false });
                     return;
                 }
                 useAuthStore.setState({
-                    isAuthenticated: !!state?.token,
+                    isAuthenticated: !!state?.accessToken,
                     isLoading: false,
                 });
             },
-            version: 1,
-            migrate: async (persistedState) => persistedState as AuthState,
+            version: 2,
+            migrate: async (persistedState: any) => {
+                // Migrate from v1 (single `token` field) to v2 (`accessToken` + `refreshToken`)
+                if (persistedState?.token && !persistedState?.accessToken) {
+                    return {
+                        ...persistedState,
+                        accessToken: persistedState.token,
+                        refreshToken: null,
+                        token: undefined,
+                    } as AuthState;
+                }
+                return persistedState as AuthState;
+            },
         }
     )
 );

@@ -5,7 +5,8 @@ import { Transaction } from "@/api/endpoints/transactions";
 import { ThemedText } from "@/components/ui/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { formatAmount, formatDateLabel, hexToRgba } from "@/utils/format";
+import { formatDateLabel, hexToRgba } from "@/utils/format";
+import { useAppCurrency } from "@/hooks/useAppCurrency";
 
 interface TransactionItemProps {
     transaction: Transaction;
@@ -15,6 +16,7 @@ interface TransactionItemProps {
 export const TransactionItem = React.memo(({ transaction, isLast = false }: TransactionItemProps) => {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === "dark";
+    const { format } = useAppCurrency();
 
     const categoryColor =
         transaction.category?.color && transaction.category.color.startsWith("#")
@@ -54,7 +56,7 @@ export const TransactionItem = React.memo(({ transaction, isLast = false }: Tran
                 style={{ color: isIncome ? "#10B981" : undefined }}
             >
                 {isIncome ? "+" : "-"}
-                {formatAmount(transaction.amount)}
+                {format(transaction.amount)}
             </ThemedText>
         </View>
     );

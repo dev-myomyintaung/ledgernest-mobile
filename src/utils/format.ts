@@ -2,10 +2,10 @@
 export const getAmountNumber = (value: string | number) =>
     typeof value === "number" ? value : Number.parseFloat(value);
 
-export const formatAmount = (value: string | number) => {
+export const formatAmount = (value: string | number, symbol = '$') => {
     const parsed = getAmountNumber(value);
-    if (Number.isNaN(parsed)) return "$0.00";
-    return `$${Math.abs(parsed).toFixed(2)}`;
+    if (Number.isNaN(parsed)) return `${symbol}0.00`;
+    return `${symbol}${Math.abs(parsed).toFixed(2)}`;
 };
 
 export const hexToRgba = (hex: string, alpha: number) => {

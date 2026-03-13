@@ -15,9 +15,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useCreateCategory } from '@/hooks/useCategories';
+import { useCreateCategory, useUpdateCategory } from '@/hooks/useCategories';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useLocalSearchParams } from 'expo-router';
 
 const categorySchema = z.object({
     name: z.string().min(1, 'Name is required').max(30, 'Name is too long'),
@@ -174,7 +175,18 @@ export default function CreateCategoryModal() {
     const insets = useSafeAreaInsets();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
+    const params = useLocalSearchParams<{
+        categoryId?: string;
+        name?: string;
+        type?: string;
+        color?: string;
+        icon?: string;
+    }>();
+
+    const isEditMode = !!params.categoryId;
     const createMutation = useCreateCategory();
+    const updateMutation = useUpdateCategory();
+    const isPending = createMutation.isPending || updateMutation.isPending;
 
     const {
         control,
@@ -184,19 +196,23 @@ export default function CreateCategoryModal() {
     } = useForm<CategoryFormValues>({
         resolver: zodResolver(categorySchema),
         defaultValues: {
-            name: '',
-            type: 'expense',
-            color: '#4CAF50',
-            icon: ICONS[0],
+            name: params.name ?? '',
+            type: (params.type as 'expense' | 'income') ?? 'expense',
+            color: params.color || '#4CAF50',
+            icon: (params.icon as typeof ICONS[number]) || ICONS[0],
         },
     });
 
     const onSubmit = (data: CategoryFormValues) => {
-        createMutation.mutate(data, {
-            onSuccess: () => {
-                router.back();
-            },
-        });
+        if (isEditMode) {
+            updateMutation.mutate({ id: params.categoryId!, data }, {
+                onSuccess: () => router.back(),
+            });
+        } else {
+            createMutation.mutate(data, {
+                onSuccess: () => router.back(),
+            });
+        }
     };
 
     const selectedColor = watch('color');
@@ -224,7 +240,7 @@ export default function CreateCategoryModal() {
 
                         <View className="flex-1 items-center">
                             <ThemedText className="text-[11px] tracking-[2px] text-zinc-500">CATEGORY</ThemedText>
-                            <ThemedText type="subtitle">New Category</ThemedText>
+                            <ThemedText type="subtitle">{isEditMode ? 'Edit Category' : 'New Category'}</ThemedText>
                         </View>
 
                         <View className="w-[60px] items-end">
@@ -232,15 +248,15 @@ export default function CreateCategoryModal() {
                                 accessibilityRole="button"
                                 accessibilityLabel="Create category"
                                 onPress={handleSubmit(onSubmit)}
-                                disabled={createMutation.isPending}
+                                disabled={isPending}
                                 className="w-10 h-10 rounded-full items-center justify-center"
                                 style={{
-                                    backgroundColor: createMutation.isPending ? (isDark ? '#3f3f46' : '#d4d4d8') : actionBackground,
+                                    backgroundColor: isPending ? (isDark ? '#3f3f46' : '#d4d4d8') : actionBackground,
                                 }}>
                                 <IconSymbol
                                     name="checkmark"
                                     size={20}
-                                    color={createMutation.isPending ? (isDark ? '#a1a1aa' : '#71717a') : actionIcon}
+                                    color={isPending ? (isDark ? '#a1a1aa' : '#71717a') : actionIcon}
                                 />
                             </TouchableOpacity>
                         </View>
@@ -273,7 +289,7 @@ export default function CreateCategoryModal() {
                                         onBlur={onBlur}
                                         onChangeText={onChange}
                                         value={value}
-                                        className="text-[17px] text-zinc-900 dark:text-zinc-100"
+                                        style={{ fontSize: 17, textAlignVertical: 'center', color: isDark ? '#f4f4f5' : '#18181b' }}
                                         placeholderTextColor={isDark ? '#71717a' : '#a1a1aa'}
                                         autoFocus
                                     />

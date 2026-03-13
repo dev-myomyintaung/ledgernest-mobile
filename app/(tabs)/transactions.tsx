@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedView } from "@/components/ui/themed-view";
@@ -12,16 +12,26 @@ import { SearchBar } from "@/components/transactions/SearchBar";
 import { TransactionFilters } from "@/components/transactions/TransactionFilters";
 import { TransactionList } from "@/components/transactions/TransactionList";
 import { FilterModal } from "@/components/transactions/FilterModal";
+import { useLocalSearchParams } from "expo-router";
 
 export default function TransactionsScreen() {
   const insets = useSafeAreaInsets();
+  const { categoryId } = useLocalSearchParams<{ categoryId?: string }>();
+
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     types: [],
     sources: [],
-    categoryIds: [],
+    categoryIds: categoryId ? [categoryId] : [],
     dateRange: { start: null, end: null },
   });
+
+  // Update filter if categoryId param changes (e.g. navigating from categories)
+  useEffect(() => {
+    if (categoryId) {
+      setFilters(prev => ({ ...prev, categoryIds: [categoryId] }));
+    }
+  }, [categoryId]);
   const [search, setSearch] = useState("");
   const { data: transactions = [], isLoading, error } = useTransactions();
   const { data: categories = [] } = useCategories();
