@@ -12,7 +12,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { getFloatingTabContentPaddingBottom } from '@/constants/layout';
 import { useMemo, useCallback } from 'react';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { zinc, brand } from '@/constants/theme';
+import { zinc, brand, Colors } from '@/constants/theme';
 
 export default function CategoriesScreen() {
     const insets = useSafeAreaInsets();
@@ -31,7 +31,6 @@ export default function CategoriesScreen() {
         refetchTxs();
     }, [refetchCats, refetchTxs]));
 
-    // Compute per-category stats from all transactions
     const statsById = useMemo(() => {
         const map: Record<string, CategoryStats> = {};
         transactions.forEach(tx => {
@@ -43,7 +42,6 @@ export default function CategoriesScreen() {
             const prev = parseFloat(map[tx.categoryId].totalAmount) || 0;
             map[tx.categoryId].totalAmount = String(prev + Number(tx.amount));
         });
-        // Format totals
         Object.keys(map).forEach(id => {
             map[id].totalAmount = format(map[id].totalAmount);
         });
@@ -97,7 +95,19 @@ export default function CategoriesScreen() {
     return (
         <ThemedView style={{ flex: 1, paddingTop: insets.top }}>
             <View className="px-4 pt-4 pb-3 flex-row justify-between items-center">
-                <ThemedText type="title">Categories</ThemedText>
+                <View className="flex-row items-center gap-3">
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        className="w-9 h-9 rounded-full items-center justify-center border border-zinc-200 dark:border-zinc-700"
+                    >
+                        <IconSymbol
+                            name="chevron.left"
+                            size={18}
+                            color={Colors[colorScheme ?? 'light'].icon}
+                        />
+                    </TouchableOpacity>
+                    <ThemedText type="title">Categories</ThemedText>
+                </View>
                 <TouchableOpacity
                     onPress={() => router.push('/create-category')}
                     className="w-10 h-10 rounded-full items-center justify-center"

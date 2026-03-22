@@ -32,7 +32,9 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     const fabIconColor = colors.primaryForeground;
     const bottomOffset = getFloatingTabBottomOffset(insets.bottom);
 
-    const routes = state.routes;
+    const routes = state.routes.filter(
+        (route) => descriptors[route.key].options.tabBarIcon !== undefined,
+    );
 
     return (
         <View style={styles.wrapper} pointerEvents="box-none">
