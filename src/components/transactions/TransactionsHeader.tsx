@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { ThemedText } from "@/components/ui/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Colors, zinc } from '@/constants/theme';
+import { Colors, zinc, brand } from '@/constants/theme';
 
 interface TransactionsHeaderProps {
     onFilterPress: () => void;
@@ -13,17 +12,34 @@ interface TransactionsHeaderProps {
 
 export const TransactionsHeader = ({ onFilterPress, hasActiveFilters }: TransactionsHeaderProps) => {
     const colorScheme = useColorScheme();
+    const isDark = colorScheme === 'dark';
+    const cs = colorScheme ?? 'light';
+
     return (
-        <View className="px-6 pb-2 pt-4 flex-row justify-between items-center">
-            <ThemedText type="title">Transactions</ThemedText>
+        <View className="px-4 pt-5 pb-3 flex-row justify-between items-center">
+            <ThemedText className="text-2xl font-bold">Transactions</ThemedText>
             <TouchableOpacity
-                className={`p-2 rounded-full ${hasActiveFilters ? "bg-brand-100 dark:bg-brand-900" : "bg-zinc-100 dark:bg-zinc-800"}`}
+                activeOpacity={0.7}
                 onPress={onFilterPress}
+                style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 19,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: hasActiveFilters
+                        ? isDark ? brand[900] : brand[100]
+                        : isDark ? zinc[800] : zinc[100],
+                    borderWidth: 1,
+                    borderColor: hasActiveFilters
+                        ? isDark ? brand[700] : brand[200]
+                        : isDark ? zinc[700] : zinc[200],
+                }}
             >
                 <IconSymbol
                     name="slider.horizontal.3"
-                    size={24}
-                    color={hasActiveFilters ? Colors[colorScheme ?? 'light'].primary : zinc[500]}
+                    size={17}
+                    color={hasActiveFilters ? Colors[cs].primary : Colors[cs].icon}
                 />
             </TouchableOpacity>
         </View>

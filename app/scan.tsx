@@ -9,15 +9,13 @@ import { ThemedText } from '@/components/ui/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useProcessReceipt, useUploadReceipt } from '@/hooks/useReceipts';
+import { Colors, zinc, brand } from '@/constants/theme';
 
 type PickSource = 'camera' | 'library';
 
 const extToMime: Record<string, string> = {
-  jpg: 'image/jpeg',
-  jpeg: 'image/jpeg',
-  png: 'image/png',
-  webp: 'image/webp',
-  heic: 'image/heic',
+  jpg: 'image/jpeg', jpeg: 'image/jpeg',
+  png: 'image/png', webp: 'image/webp', heic: 'image/heic',
 };
 
 const getMimeType = (uri: string, fallback?: string | null) => {
@@ -26,18 +24,24 @@ const getMimeType = (uri: string, fallback?: string | null) => {
   return ext ? extToMime[ext] ?? 'image/jpeg' : 'image/jpeg';
 };
 
-export default function ScanScreen() {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+const SOURCES = [
+  { source: 'camera'  as const, icon: 'camera.fill' as const, label: 'Camera' },
+  { source: 'library' as const, icon: 'photo.fill'  as const, label: 'Gallery' },
+];
 
-  const uploadReceipt = useUploadReceipt();
+export default function ScanScreen() {
+  const router  = useRouter();
+  const insets  = useSafeAreaInsets();
+  const colorScheme = useColorScheme();
+  const isDark  = colorScheme === 'dark';
+  const cs      = colorScheme ?? 'light';
+
+  const uploadReceipt  = useUploadReceipt();
   const processReceipt = useProcessReceipt();
 
-  const [previewUri, setPreviewUri] = useState<string | null>(null);
-  const [busyMessage, setBusyMessage] = useState<string | null>(null);
-  const [failed, setFailed] = useState(false);
+  const [previewUri,   setPreviewUri]   = useState<string | null>(null);
+  const [busyMessage,  setBusyMessage]  = useState<string | null>(null);
+  const [failed,       setFailed]       = useState(false);
 
   const isBusy = uploadReceipt.isPending || processReceipt.isPending;
 
@@ -53,14 +57,14 @@ export default function ScanScreen() {
     rescan();
     try {
       if (source === 'camera') {
-        const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
-        if (!cameraPermission.granted) {
+        const perm = await ImagePicker.requestCameraPermissionsAsync();
+        if (!perm.granted) {
           Alert.alert('Camera permission needed', 'Allow camera access to scan receipts.');
           return;
         }
       } else {
-        const libraryPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (!libraryPermission.granted) {
+        const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!perm.granted) {
           Alert.alert('Library permission needed', 'Allow photo library access to upload receipts.');
           return;
         }
@@ -68,23 +72,15 @@ export default function ScanScreen() {
 
       const result =
         source === 'camera'
-          ? await ImagePicker.launchCameraAsync({
-              mediaTypes: ['images'],
-              quality: 0.9,
-            })
-          : await ImagePicker.launchImageLibraryAsync({
-              mediaTypes: ['images'],
-              quality: 0.9,
-            });
+          ? await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.9 })
+          : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.9 });
 
-      if (result.canceled || !result.assets.length) {
-        return;
-      }
+      if (result.canceled || !result.assets.length) return;
 
       const asset = result.assets[0];
       setPreviewUri(asset.uri);
 
-      setBusyMessage('Uploading receipt...');
+      setBusyMessage('Uploading receipt…');
       let receipt;
       try {
         receipt = await uploadReceipt.mutateAsync({
@@ -98,7 +94,7 @@ export default function ScanScreen() {
         return;
       }
 
-      setBusyMessage('Running OCR...');
+      setBusyMessage('Running OCR…');
       try {
         await processReceipt.mutateAsync(receipt.id);
       } catch {
@@ -109,111 +105,143 @@ export default function ScanScreen() {
           [
             {
               text: 'Review anyway',
-              onPress: () =>
-                router.push({
-                  pathname: '/receipt-review',
-                  params: { receiptId: receipt!.id, localImageUri: asset.uri },
-                }),
+              onPress: () => router.push({ pathname: '/receipt-review', params: { receiptId: receipt!.id, localImageUri: asset.uri } }),
             },
             { text: 'Re-scan', onPress: rescan },
-          ]
+          ],
         );
         return;
       }
 
-      router.push({
-        pathname: '/receipt-review',
-        params: {
-          receiptId: receipt.id,
-          localImageUri: asset.uri,
-        },
-      });
+      router.push({ pathname: '/receipt-review', params: { receiptId: receipt.id, localImageUri: asset.uri } });
     } finally {
       setBusyMessage(null);
     }
   };
 
+  const card = {
+    backgroundColor: isDark ? zinc[800] : zinc[100],
+    borderRadius:    20,
+    borderWidth:     1,
+    borderColor:     isDark ? zinc[700] : zinc[200],
+  } as const;
+
   return (
     <ThemedView className="flex-1" style={{ paddingTop: Platform.OS === 'ios' ? 8 : insets.top }}>
-      <View className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 flex-row items-center justify-between">
+
+      {/* ── Header ────────────────────────────────────────────── */}
+      <View
+        className="px-4 py-3 flex-row items-center justify-between"
+        style={{ borderBottomWidth: 1, borderBottomColor: isDark ? zinc[800] : zinc[200] }}
+      >
         <TouchableOpacity
+          activeOpacity={0.7}
           onPress={() => router.back()}
-          className="w-10 h-10 rounded-full items-center justify-center border border-zinc-200 dark:border-zinc-700">
-          <IconSymbol name="xmark" size={18} color={isDark ? '#d4d4d8' : '#3f3f46'} />
+          style={{
+            width: 38, height: 38, borderRadius: 19,
+            alignItems: 'center', justifyContent: 'center',
+            backgroundColor: isDark ? zinc[800] : zinc[100],
+            borderWidth: 1, borderColor: isDark ? zinc[700] : zinc[200],
+          }}
+        >
+          <IconSymbol name="xmark" size={15} color={Colors[cs].icon} />
         </TouchableOpacity>
 
         <View className="items-center">
-          <ThemedText className="text-[11px] tracking-[2px] text-zinc-500">RECEIPTS</ThemedText>
-          <ThemedText type="subtitle">Scan Receipt</ThemedText>
+          <ThemedText className="text-[10px] tracking-widest text-zinc-400 font-semibold">RECEIPTS</ThemedText>
+          <ThemedText className="text-base font-bold">Scan</ThemedText>
         </View>
 
-        <View className="w-10" />
+        <View style={{ width: 38 }} />
       </View>
 
-      <View className="flex-1 px-4 pt-4 pb-6" style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
-        <View className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-5 mb-4">
-          <View className="flex-row items-center gap-3 mb-3">
-            <View className="w-11 h-11 rounded-2xl bg-black dark:bg-white items-center justify-center">
-              <IconSymbol name="viewfinder" size={22} color={isDark ? '#111111' : '#ffffff'} />
-            </View>
-            <View className="flex-1">
-              <ThemedText type="defaultSemiBold" className="text-[17px]">
-                Upload a receipt image
-              </ThemedText>
-              <ThemedText className="text-zinc-500 text-sm">Take a photo or choose from gallery</ThemedText>
-            </View>
-          </View>
-
-          <View className="flex-row gap-3">
+      {/* ── Body ──────────────────────────────────────────────── */}
+      <View
+        className="flex-1 px-4 pt-4"
+        style={{ paddingBottom: Math.max(insets.bottom + 16, 24) }}
+      >
+        {/* Pick source buttons */}
+        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
+          {SOURCES.map(({ source, icon, label }) => (
             <TouchableOpacity
+              key={source}
+              activeOpacity={0.7}
               disabled={isBusy}
-              onPress={() => pickImage('camera')}
-              className="flex-1 rounded-2xl border border-zinc-300 dark:border-zinc-700 p-4 items-center">
-              <IconSymbol name="camera.fill" size={22} color={isDark ? '#f4f4f5' : '#111111'} />
-              <ThemedText className="mt-2 font-semibold">Camera</ThemedText>
+              onPress={() => pickImage(source)}
+              style={{
+                ...card,
+                flex: 1,
+                paddingVertical: 22,
+                alignItems: 'center',
+                gap: 10,
+                opacity: isBusy ? 0.5 : 1,
+              }}
+            >
+              <View
+                style={{
+                  width: 48, height: 48, borderRadius: 16,
+                  alignItems: 'center', justifyContent: 'center',
+                  backgroundColor: isDark ? brand[900] : brand[100],
+                }}
+              >
+                <IconSymbol name={icon} size={22} color={isDark ? brand[400] : brand[500]} />
+              </View>
+              <ThemedText className="text-sm font-semibold">{label}</ThemedText>
             </TouchableOpacity>
-            <TouchableOpacity
-              disabled={isBusy}
-              onPress={() => pickImage('library')}
-              className="flex-1 rounded-2xl border border-zinc-300 dark:border-zinc-700 p-4 items-center">
-              <IconSymbol name="photo.fill" size={22} color={isDark ? '#f4f4f5' : '#111111'} />
-              <ThemedText className="mt-2 font-semibold">Gallery</ThemedText>
-            </TouchableOpacity>
-          </View>
+          ))}
         </View>
 
-        <View className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-4 flex-1">
-          <ThemedText type="defaultSemiBold" className="mb-3">
-            Preview
+        {/* Preview card */}
+        <View style={{ ...card, flex: 1, padding: 16 }}>
+          <ThemedText className="text-xs font-bold text-zinc-400 tracking-widest mb-3">
+            PREVIEW
           </ThemedText>
 
-          <View className="flex-1 rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 items-center justify-center">
+          <View
+            style={{
+              flex: 1, borderRadius: 14, overflow: 'hidden',
+              backgroundColor: isDark ? zinc[700] : zinc[200],
+              alignItems: 'center', justifyContent: 'center',
+            }}
+          >
             {previewUri ? (
-              <Image source={{ uri: previewUri }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+              <Image
+                source={{ uri: previewUri }}
+                style={{ width: '100%', height: '100%' }}
+                contentFit="cover"
+              />
             ) : (
-              <View className="items-center">
-                <IconSymbol name="doc.text.fill" size={28} color={isDark ? '#71717a' : '#a1a1aa'} />
-                <ThemedText className="text-zinc-500 mt-2">No image selected</ThemedText>
+              <View className="items-center" style={{ gap: 8 }}>
+                <IconSymbol name="doc.text.fill" size={32} color={isDark ? zinc[600] : zinc[400]} />
+                <ThemedText className="text-sm text-zinc-400">No image selected</ThemedText>
               </View>
             )}
           </View>
 
-          {busyMessage ? (
+          {/* Busy */}
+          {busyMessage && (
             <View className="mt-3 flex-row items-center gap-2">
               <ActivityIndicator />
-              <ThemedText className="text-zinc-500">{busyMessage}</ThemedText>
+              <ThemedText className="text-sm text-zinc-500">{busyMessage}</ThemedText>
             </View>
-          ) : null}
+          )}
 
-          {failed && !isBusy ? (
+          {/* Failed — re-scan */}
+          {failed && !isBusy && (
             <TouchableOpacity
+              activeOpacity={0.7}
               onPress={rescan}
-              className="mt-3 h-11 rounded-xl border border-zinc-300 dark:border-zinc-700 items-center justify-center flex-row gap-2"
+              style={{
+                marginTop: 12, height: 44, borderRadius: 14,
+                borderWidth: 1, borderColor: isDark ? zinc[700] : zinc[200],
+                alignItems: 'center', justifyContent: 'center',
+                flexDirection: 'row', gap: 8,
+              }}
             >
-              <IconSymbol name="arrow.clockwise" size={18} color={isDark ? '#d4d4d8' : '#3f3f46'} />
-              <ThemedText className="font-semibold">Re-scan</ThemedText>
+              <IconSymbol name="arrow.clockwise" size={16} color={Colors[cs].icon} />
+              <ThemedText className="text-sm font-semibold">Re-scan</ThemedText>
             </TouchableOpacity>
-          ) : null}
+          )}
         </View>
       </View>
     </ThemedView>

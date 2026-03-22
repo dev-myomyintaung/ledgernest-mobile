@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { View, SectionList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -22,84 +21,77 @@ export const TransactionList = ({ sections, isLoading, error, contentPaddingBott
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === "dark";
+    const cs = colorScheme ?? 'light';
     const { format } = useAppCurrency();
 
-    const renderSectionHeader = ({
-        section,
-    }: {
-        section: TransactionSection;
-    }) => {
-        if (section.type === "manual") {
-            const total = section.total ?? 0;
-            const totalPrefix = total > 0 ? "+" : total < 0 ? "-" : "";
+    // Screen background — used so sticky headers blend in when content scrolls beneath
+    const headerBg = Colors[cs].background;
 
+    const renderSectionHeader = ({ section }: { section: TransactionSection }) => {
+        const total       = section.total ?? 0;
+        const totalAbs    = Math.abs(total);
+        const totalColor  = total > 0 ? Colors[cs].success : total < 0 ? undefined : undefined;
+        const totalPrefix = total > 0 ? "+" : total < 0 ? "-" : "";
+
+        if (section.type === "manual") {
             return (
-                <View className="bg-zinc-50 dark:bg-zinc-950 px-6 pt-4 pb-2">
-                    <View className="flex-row items-center justify-between mt-1">
-                        <ThemedText className="text-[11px] tracking-widest text-zinc-500">
-                            {section.label ?? "MANUAL"}
+                <View style={{ backgroundColor: headerBg, paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8 }}>
+                    {section.label ? (
+                        <ThemedText className="text-xs font-bold text-zinc-400 tracking-widest mb-1">
+                            {section.label}
                         </ThemedText>
+                    ) : null}
+                    <View className="flex-row items-center justify-between">
+                        <ThemedText className="text-xs text-zinc-500">Manual entries</ThemedText>
                         <ThemedText
-                            type="defaultSemiBold"
-                            style={{ color: total > 0 ? Colors[colorScheme ?? 'light'].success : undefined }}
+                            className="text-xs font-semibold"
+                            style={{ color: totalColor }}
                         >
-                            {totalPrefix}
-                            {format(total)}
+                            {totalPrefix}{format(totalAbs)}
                         </ThemedText>
                     </View>
                 </View>
             );
         }
 
-        const total = section.total ?? 0;
-        const totalPrefix = total > 0 ? "+" : total < 0 ? "-" : "";
-        const summary = formatReceiptGroupDate(section.receiptDate);
-        const canOpenReceipt = !!section.receiptId;
+        // Receipt section
+        const summary      = formatReceiptGroupDate(section.receiptDate);
+        const canNavigate  = !!section.receiptId;
 
         return (
-            <View className="bg-zinc-50 dark:bg-zinc-950 px-6 pt-4 pb-2">
+            <View style={{ backgroundColor: headerBg, paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8 }}>
                 {section.label ? (
-                    <ThemedText className="text-[11px] tracking-widest text-zinc-500">
+                    <ThemedText className="text-xs font-bold text-zinc-400 tracking-widest mb-2">
                         {section.label}
                     </ThemedText>
                 ) : null}
                 <TouchableOpacity
-                    activeOpacity={0.85}
-                    disabled={!canOpenReceipt}
+                    activeOpacity={canNavigate ? 0.7 : 1}
+                    disabled={!canNavigate}
                     onPress={() => {
                         if (!section.receiptId) return;
-                        router.push({
-                            pathname: "/receipt-review",
-                            params: { receiptId: section.receiptId },
-                        });
+                        router.push({ pathname: "/receipt-review", params: { receiptId: section.receiptId } });
                     }}
-                    className="pt-1 flex-row items-center justify-between"
+                    className="flex-row items-center justify-between"
                 >
                     <View className="flex-1 pr-3">
                         <ThemedText type="defaultSemiBold" numberOfLines={1}>
                             {section.storeName ?? "Receipt"}
                         </ThemedText>
-                        <ThemedText className="text-xs text-zinc-500" numberOfLines={1}>
+                        <ThemedText className="text-xs text-zinc-400" numberOfLines={1}>
                             {summary}
                         </ThemedText>
                     </View>
-                    <View className="items-end">
+                    <View className="flex-row items-center gap-1">
                         <ThemedText
-                            type="defaultSemiBold"
-                            style={{ color: total > 0 ? Colors[colorScheme ?? 'light'].success : undefined }}
+                            className="text-sm font-semibold"
+                            style={{ color: totalColor }}
                         >
-                            {totalPrefix}
-                            {format(total)}
+                            {totalPrefix}{format(totalAbs)}
                         </ThemedText>
-                        {canOpenReceipt ? (
-                            <View className="mt-1 flex-row items-center gap-1">
-                                <IconSymbol
-                                    name="chevron.right"
-                                    size={10}
-                                    color={zinc[isDark ? 400 : 500]}
-                                />
-                            </View>
-                        ) : null}
+                        {canNavigate && (
+                            <IconSymbol name="chevron.right" size={12} color={zinc[isDark ? 500 : 400]} />
+                        )}
                     </View>
                 </TouchableOpacity>
             </View>
@@ -108,20 +100,20 @@ export const TransactionList = ({ sections, isLoading, error, contentPaddingBott
 
     if (isLoading) {
         return (
-            <View className="px-6 py-10 items-center">
+            <View className="px-4 py-10 items-center">
                 <ActivityIndicator />
             </View>
-        )
+        );
     }
 
     if (!isLoading && error) {
         return (
-            <View className="px-6 py-10 items-center">
+            <View className="px-4 py-10 items-center">
                 <ThemedText style={{ color: semantic.danger.light }}>
                     Failed to load transactions
                 </ThemedText>
             </View>
-        )
+        );
     }
 
     return (
@@ -131,14 +123,17 @@ export const TransactionList = ({ sections, isLoading, error, contentPaddingBott
             showsVerticalScrollIndicator={false}
             stickySectionHeadersEnabled
             renderSectionHeader={renderSectionHeader}
-            renderItem={({ item, index, section }) =>
-                <TransactionItem transaction={item} isLast={index === section.data.length - 1} />
-            }
+            renderItem={({ item, index, section }) => (
+                <TransactionItem
+                    transaction={item}
+                    isFirst={index === 0}
+                    isLast={index === section.data.length - 1}
+                />
+            )}
+            SectionSeparatorComponent={() => <View style={{ height: 8 }} />}
             ListEmptyComponent={
-                <View className="px-6 py-10 items-center">
-                    <ThemedText className="text-zinc-500">
-                        No transactions found
-                    </ThemedText>
+                <View className="px-4 py-10 items-center">
+                    <ThemedText className="text-zinc-500">No transactions found</ThemedText>
                 </View>
             }
             contentContainerStyle={{ paddingBottom: contentPaddingBottom }}
