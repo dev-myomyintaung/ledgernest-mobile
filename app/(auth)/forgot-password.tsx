@@ -9,6 +9,7 @@ import { useForgotPassword } from '@/hooks/useAuth';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors, zinc, semantic } from '@/constants/theme';
 
 const schema = z.object({
     email: z.string().email('Enter a valid email address'),
@@ -45,15 +46,15 @@ export default function ForgotPasswordScreen() {
                     <ThemedText type="title" className="text-2xl font-bold mb-3 text-center">
                         Check your email
                     </ThemedText>
-                    <ThemedText className="text-gray-500 text-center leading-6">
+                    <ThemedText className="text-zinc-500 text-center leading-6">
                         If that email is registered, we&apos;ve sent a password reset link.
                         Check your inbox and follow the link to reset your password.
                     </ThemedText>
                 </View>
 
                 <Link href="/(auth)/login" asChild>
-                    <TouchableOpacity className="bg-black dark:bg-white p-4 rounded-xl items-center">
-                        <Text className="text-white dark:text-black font-semibold text-lg">
+                    <TouchableOpacity style={{ backgroundColor: isDark ? Colors.dark.primary : Colors.light.primary }} className="p-4 rounded-xl items-center">
+                        <Text style={{ color: Colors[colorScheme ?? 'light'].primaryForeground }} className="font-semibold text-lg">
                             Back to Login
                         </Text>
                     </TouchableOpacity>
@@ -68,7 +69,7 @@ export default function ForgotPasswordScreen() {
                 <ThemedText type="title" className="text-3xl font-bold mb-2">
                     Forgot Password?
                 </ThemedText>
-                <ThemedText className="text-gray-500 leading-6">
+                <ThemedText className="text-zinc-500 leading-6">
                     No worries. Enter your email address and we&apos;ll send you a link to reset your password.
                 </ThemedText>
             </View>
@@ -84,12 +85,12 @@ export default function ForgotPasswordScreen() {
                                 style={{
                                     height: 52, borderRadius: 12, paddingHorizontal: 16,
                                     borderWidth: 1, fontSize: 16, textAlignVertical: 'center',
-                                    backgroundColor: isDark ? '#1f2937' : '#f3f4f6',
-                                    borderColor: errors.email ? '#ef4444' : isDark ? '#374151' : '#e5e7eb',
-                                    color: isDark ? '#ffffff' : '#000000',
+                                    backgroundColor: isDark ? zinc[800] : zinc[100],
+                                    borderColor: errors.email ? semantic.danger.light : isDark ? zinc[700] : zinc[200],
+                                    color: isDark ? zinc[50] : zinc[900],
                                 }}
                                 placeholder="Enter your email"
-                                placeholderTextColor="#9CA3AF"
+                                placeholderTextColor={zinc[400]}
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 value={value}
@@ -99,29 +100,30 @@ export default function ForgotPasswordScreen() {
                         )}
                     />
                     {errors.email && (
-                        <Text className="text-red-500 text-sm mt-1">{errors.email.message}</Text>
+                        <Text style={{ color: semantic.danger.light }} className="text-sm mt-1">{errors.email.message}</Text>
                     )}
                 </View>
 
                 <TouchableOpacity
-                    className="bg-black dark:bg-white p-4 rounded-xl items-center"
+                    style={{ backgroundColor: isDark ? Colors.dark.primary : Colors.light.primary }}
+                    className="p-4 rounded-xl items-center"
                     onPress={handleSubmit(onSubmit)}
                     disabled={isPending}
                 >
                     {isPending ? (
-                        <ActivityIndicator color={isDark ? '#111111' : '#ffffff'} />
+                        <ActivityIndicator color={Colors[colorScheme ?? 'light'].primaryForeground} />
                     ) : (
-                        <Text className="text-white dark:text-black font-semibold text-lg">
+                        <Text style={{ color: Colors[colorScheme ?? 'light'].primaryForeground }} className="font-semibold text-lg">
                             Send Reset Link
                         </Text>
                     )}
                 </TouchableOpacity>
 
                 <View className="flex-row justify-center mt-6">
-                    <ThemedText className="text-gray-500">Remember your password? </ThemedText>
+                    <ThemedText className="text-zinc-500">Remember your password? </ThemedText>
                     <Link href="/(auth)/login" asChild>
                         <TouchableOpacity>
-                            <ThemedText type="defaultSemiBold" className="text-black dark:text-white">
+                            <ThemedText type="defaultSemiBold" style={{ color: Colors[colorScheme ?? 'light'].primary }}>
                                 Log In
                             </ThemedText>
                         </TouchableOpacity>

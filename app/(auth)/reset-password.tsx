@@ -9,6 +9,7 @@ import { useResetPassword } from '@/hooks/useAuth';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors, zinc, semantic } from '@/constants/theme';
 
 const schema = z
     .object({
@@ -50,14 +51,14 @@ export default function ResetPasswordScreen() {
                     <ThemedText type="title" className="text-2xl font-bold mb-3 text-center">
                         Invalid Link
                     </ThemedText>
-                    <ThemedText className="text-gray-500 text-center">
+                    <ThemedText className="text-zinc-500 text-center">
                         This password reset link is missing or invalid.
                         Please request a new one.
                     </ThemedText>
                 </View>
                 <Link href="/(auth)/forgot-password" asChild>
-                    <TouchableOpacity className="bg-black dark:bg-white p-4 rounded-xl items-center">
-                        <Text className="text-white dark:text-black font-semibold text-lg">
+                    <TouchableOpacity style={{ backgroundColor: isDark ? Colors.dark.primary : Colors.light.primary }} className="p-4 rounded-xl items-center">
+                        <Text style={{ color: Colors[colorScheme ?? 'light'].primaryForeground }} className="font-semibold text-lg">
                             Request New Link
                         </Text>
                     </TouchableOpacity>
@@ -72,7 +73,7 @@ export default function ResetPasswordScreen() {
                 <ThemedText type="title" className="text-3xl font-bold mb-2">
                     Set New Password
                 </ThemedText>
-                <ThemedText className="text-gray-500">
+                <ThemedText className="text-zinc-500">
                     Choose a new password for your account.
                 </ThemedText>
             </View>
@@ -89,12 +90,12 @@ export default function ResetPasswordScreen() {
                                 style={{
                                     height: 52, borderRadius: 12, paddingHorizontal: 16,
                                     borderWidth: 1, fontSize: 16, textAlignVertical: 'center',
-                                    backgroundColor: isDark ? '#1f2937' : '#f3f4f6',
-                                    borderColor: errors.newPassword ? '#ef4444' : isDark ? '#374151' : '#e5e7eb',
-                                    color: isDark ? '#ffffff' : '#000000',
+                                    backgroundColor: isDark ? zinc[800] : zinc[100],
+                                    borderColor: errors.newPassword ? semantic.danger.light : isDark ? zinc[700] : zinc[200],
+                                    color: isDark ? zinc[50] : zinc[900],
                                 }}
                                 placeholder="At least 6 characters"
-                                placeholderTextColor="#9CA3AF"
+                                placeholderTextColor={zinc[400]}
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 value={value}
@@ -103,7 +104,7 @@ export default function ResetPasswordScreen() {
                         )}
                     />
                     {errors.newPassword && (
-                        <Text className="text-red-500 text-sm mt-1">{errors.newPassword.message}</Text>
+                        <Text style={{ color: semantic.danger.light }} className="text-sm mt-1">{errors.newPassword.message}</Text>
                     )}
                 </View>
 
@@ -118,12 +119,12 @@ export default function ResetPasswordScreen() {
                                 style={{
                                     height: 52, borderRadius: 12, paddingHorizontal: 16,
                                     borderWidth: 1, fontSize: 16, textAlignVertical: 'center',
-                                    backgroundColor: isDark ? '#1f2937' : '#f3f4f6',
-                                    borderColor: errors.confirmPassword ? '#ef4444' : isDark ? '#374151' : '#e5e7eb',
-                                    color: isDark ? '#ffffff' : '#000000',
+                                    backgroundColor: isDark ? zinc[800] : zinc[100],
+                                    borderColor: errors.confirmPassword ? semantic.danger.light : isDark ? zinc[700] : zinc[200],
+                                    color: isDark ? zinc[50] : zinc[900],
                                 }}
                                 placeholder="Re-enter your password"
-                                placeholderTextColor="#9CA3AF"
+                                placeholderTextColor={zinc[400]}
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 value={value}
@@ -132,14 +133,14 @@ export default function ResetPasswordScreen() {
                         )}
                     />
                     {errors.confirmPassword && (
-                        <Text className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</Text>
+                        <Text style={{ color: semantic.danger.light }} className="text-sm mt-1">{errors.confirmPassword.message}</Text>
                     )}
                 </View>
 
                 {/* Server error */}
                 {isError && (
-                    <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3 mb-4">
-                        <Text className="text-red-600 dark:text-red-400 text-sm text-center">
+                    <View className="bg-danger-light dark:bg-danger rounded-xl p-3 mb-4" style={{ borderWidth: 1, borderColor: semantic.danger.light }}>
+                        <Text style={{ color: semantic.danger.light }} className="text-sm text-center">
                             {(error as any)?.response?.data?.error?.message ??
                                 'This link is invalid or has expired. Please request a new one.'}
                         </Text>
@@ -147,24 +148,25 @@ export default function ResetPasswordScreen() {
                 )}
 
                 <TouchableOpacity
-                    className="bg-black dark:bg-white p-4 rounded-xl items-center"
+                    style={{ backgroundColor: isDark ? Colors.dark.primary : Colors.light.primary }}
+                    className="p-4 rounded-xl items-center"
                     onPress={handleSubmit(onSubmit)}
                     disabled={isPending}
                 >
                     {isPending ? (
-                        <ActivityIndicator color={isDark ? '#111111' : '#ffffff'} />
+                        <ActivityIndicator color={Colors[colorScheme ?? 'light'].primaryForeground} />
                     ) : (
-                        <Text className="text-white dark:text-black font-semibold text-lg">
+                        <Text style={{ color: Colors[colorScheme ?? 'light'].primaryForeground }} className="font-semibold text-lg">
                             Reset Password
                         </Text>
                     )}
                 </TouchableOpacity>
 
                 <View className="flex-row justify-center mt-6">
-                    <ThemedText className="text-gray-500">Need a new link? </ThemedText>
+                    <ThemedText className="text-zinc-500">Need a new link? </ThemedText>
                     <Link href="/(auth)/forgot-password" asChild>
                         <TouchableOpacity>
-                            <ThemedText type="defaultSemiBold" className="text-black dark:text-white">
+                            <ThemedText type="defaultSemiBold" style={{ color: Colors[colorScheme ?? 'light'].primary }}>
                                 Request Again
                             </ThemedText>
                         </TouchableOpacity>

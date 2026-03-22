@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import dayjs from "dayjs";
 import { FilterState, FilterType, FilterSource } from "@/hooks/useFilteredTransactions";
 import { Category } from "@/api/endpoints/categories";
+import { Colors, zinc } from '@/constants/theme';
 
 interface FilterModalProps {
     visible: boolean;
@@ -62,7 +63,7 @@ export const FilterModal = ({
                         left: 0,
                         right: 0,
                         maxHeight: "85%",
-                        backgroundColor: isDark ? "#18181b" : "#ffffff",
+                        backgroundColor: Colors[colorScheme ?? 'light'].background,
                         borderTopLeftRadius: 24,
                         borderTopRightRadius: 24,
                         paddingTop: 24,
@@ -75,7 +76,7 @@ export const FilterModal = ({
                             width: 36,
                             height: 4,
                             borderRadius: 2,
-                            backgroundColor: isDark ? "#52525b" : "#d4d4d8",
+                            backgroundColor: isDark ? zinc[600] : zinc[300],
                             alignSelf: "center",
                             marginBottom: 20,
                         }}
@@ -89,7 +90,7 @@ export const FilterModal = ({
                         <View className="flex-row items-center gap-3">
                             {hasActiveFilters && (
                                 <TouchableOpacity onPress={onClearFilters}>
-                                    <ThemedText className="text-sm text-blue-500">
+                                    <ThemedText style={{ color: Colors[colorScheme ?? 'light'].primary }} className="text-sm">
                                         Clear all
                                     </ThemedText>
                                 </TouchableOpacity>
@@ -98,7 +99,7 @@ export const FilterModal = ({
                                 <IconSymbol
                                     name="xmark.circle.fill"
                                     size={28}
-                                    color={isDark ? "#71717a" : "#a1a1aa"}
+                                    color={Colors[colorScheme ?? 'light'].icon}
                                 />
                             </TouchableOpacity>
                         </View>
@@ -107,23 +108,23 @@ export const FilterModal = ({
                     <ScrollView showsVerticalScrollIndicator={true} className="px-6">
                         {/* Date Range */}
                         <View>
-                            <ThemedText className="text-xs tracking-widest text-gray-400 mb-3">
+                            <ThemedText className="text-xs tracking-widest text-zinc-400 mb-3">
                                 DATE RANGE
                             </ThemedText>
                             <TouchableOpacity
                                 onPress={() => setShowDatePicker(!showDatePicker)}
-                                className={`flex-row gap-3 mb-5 p-3 rounded-xl border ${showDatePicker ? "border-black dark:border-white" : "border-gray-200 dark:border-gray-700"}`}
+                                className={`flex-row gap-3 mb-5 p-3 rounded-xl border ${showDatePicker ? "border-brand-500 dark:border-brand-400" : "border-zinc-200 dark:border-zinc-700"}`}
                             >
                                 <View className="flex-1">
-                                    <ThemedText className="text-xs text-gray-400 mb-1">Start Date</ThemedText>
-                                    <ThemedText className={filters.dateRange.start ? "" : "text-gray-400"}>
+                                    <ThemedText className="text-xs text-zinc-400 mb-1">Start Date</ThemedText>
+                                    <ThemedText className={filters.dateRange.start ? "" : "text-zinc-400"}>
                                         {filters.dateRange.start ? dayjs(filters.dateRange.start).format("MMM D, YYYY") : "Select start date"}
                                     </ThemedText>
                                 </View>
-                                <View className="w-[1px] bg-gray-200 dark:bg-gray-700" />
+                                <View className="w-[1px] bg-zinc-200 dark:bg-zinc-700" />
                                 <View className="flex-1">
-                                    <ThemedText className="text-xs text-gray-400 mb-1">End Date</ThemedText>
-                                    <ThemedText className={filters.dateRange.end ? "" : "text-gray-400"}>
+                                    <ThemedText className="text-xs text-zinc-400 mb-1">End Date</ThemedText>
+                                    <ThemedText className={filters.dateRange.end ? "" : "text-zinc-400"}>
                                         {filters.dateRange.end ? dayjs(filters.dateRange.end).format("MMM D, YYYY") : "Select end date"}
                                     </ThemedText>
                                 </View>
@@ -131,7 +132,7 @@ export const FilterModal = ({
                         </View>
 
                         {showDatePicker && (
-                            <View className="mb-5 bg-gray-50 dark:bg-zinc-900 rounded-xl p-2">
+                            <View className="mb-5 bg-zinc-50 dark:bg-zinc-900 rounded-xl p-2">
                                 <DateRangePicker
                                     initialStartDate={filters.dateRange.start}
                                     initialEndDate={filters.dateRange.end}
@@ -142,7 +143,7 @@ export const FilterModal = ({
 
                         {/* Combined Filters */}
                         <View>
-                            <ThemedText className="text-xs tracking-widest text-gray-400 mb-3">
+                            <ThemedText className="text-xs tracking-widest text-zinc-400 mb-3">
                                 FILTERS
                             </ThemedText>
                             <View className="flex-row flex-wrap gap-2 mb-5">
@@ -160,13 +161,13 @@ export const FilterModal = ({
                                         <TouchableOpacity
                                             key={category.id}
                                             onPress={() => onToggleFilter("categoryIds", category.id)}
-                                            className={`flex-row items-center px-4 py-3 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}
+                                            className={`flex-row items-center px-4 py-3 rounded-full border ${isSelected ? "bg-brand-500 border-brand-500 dark:bg-brand-400 dark:border-brand-400" : "bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800"}`}
                                         >
                                             {categoryIcon.includes(".") ? (
                                                 <IconSymbol
                                                     name={categoryIcon as any}
                                                     size={18}
-                                                    color={isSelected ? (isDark ? "#000" : "#fff") : (isDark ? "#a1a1aa" : "#71717a")}
+                                                    color={isSelected ? (isDark ? zinc[900] : '#FFFFFF') : (isDark ? zinc[400] : zinc[500])}
                                                     style={{ marginRight: 8 }}
                                                 />
                                             ) : (
@@ -175,7 +176,7 @@ export const FilterModal = ({
                                                 </Text>
                                             )}
                                             <Text
-                                                className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-900 dark:text-gray-100"}`}
+                                                className={`font-semibold ${isSelected ? "text-zinc-50 dark:text-zinc-900" : "text-zinc-900 dark:text-zinc-50"}`}
                                             >
                                                 {category.name}
                                             </Text>

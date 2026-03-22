@@ -9,6 +9,7 @@ import { useLogin } from '@/hooks/useAuth';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors, zinc, semantic } from '@/constants/theme';
 
 const loginSchema = z.object({
     email: z.string().email('Invalid email address'),
@@ -43,7 +44,7 @@ export default function LoginScreen() {
         <ThemedView className="flex-1 justify-center px-4">
             <View className="mb-8">
                 <ThemedText type="title" className="text-3xl font-bold mb-2">Welcome Back</ThemedText>
-                <ThemedText className="text-gray-500">Sign in to continue to your budget</ThemedText>
+                <ThemedText className="text-zinc-500">Sign in to continue to your budget</ThemedText>
             </View>
 
             <View>
@@ -57,12 +58,12 @@ export default function LoginScreen() {
                                 style={{
                                     height: 52, borderRadius: 12, paddingHorizontal: 16,
                                     borderWidth: 1, fontSize: 16, textAlignVertical: 'center',
-                                    backgroundColor: isDark ? '#1f2937' : '#f3f4f6',
-                                    borderColor: errors.email ? '#ef4444' : isDark ? '#374151' : '#e5e7eb',
-                                    color: isDark ? '#ffffff' : '#000000',
+                                    backgroundColor: isDark ? zinc[800] : zinc[100],
+                                    borderColor: errors.email ? semantic.danger.light : isDark ? zinc[700] : zinc[200],
+                                    color: isDark ? zinc[50] : zinc[900],
                                 }}
                                 placeholder="Enter your email"
-                                placeholderTextColor="#9CA3AF"
+                                placeholderTextColor={zinc[400]}
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 value={value}
@@ -72,7 +73,7 @@ export default function LoginScreen() {
                         )}
                     />
                     {errors.email && (
-                        <Text className="text-red-500 text-sm mt-1">{errors.email.message}</Text>
+                        <Text style={{ color: semantic.danger.light }} className="text-sm mt-1">{errors.email.message}</Text>
                     )}
                 </View>
 
@@ -86,12 +87,12 @@ export default function LoginScreen() {
                                 style={{
                                     height: 52, borderRadius: 12, paddingHorizontal: 16,
                                     borderWidth: 1, fontSize: 16, textAlignVertical: 'center',
-                                    backgroundColor: isDark ? '#1f2937' : '#f3f4f6',
-                                    borderColor: errors.password ? '#ef4444' : isDark ? '#374151' : '#e5e7eb',
-                                    color: isDark ? '#ffffff' : '#000000',
+                                    backgroundColor: isDark ? zinc[800] : zinc[100],
+                                    borderColor: errors.password ? semantic.danger.light : isDark ? zinc[700] : zinc[200],
+                                    color: isDark ? zinc[50] : zinc[900],
                                 }}
                                 placeholder="Enter your password"
-                                placeholderTextColor="#9CA3AF"
+                                placeholderTextColor={zinc[400]}
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 value={value}
@@ -100,35 +101,36 @@ export default function LoginScreen() {
                         )}
                     />
                     {errors.password && (
-                        <Text className="text-red-500 text-sm mt-1">{errors.password.message}</Text>
+                        <Text style={{ color: semantic.danger.light }} className="text-sm mt-1">{errors.password.message}</Text>
                     )}
                 </View>
 
                 <View className="flex-row justify-end mt-2 mb-1">
                     <Link href="/(auth)/forgot-password" asChild>
                         <TouchableOpacity>
-                            <ThemedText className="text-gray-500 text-sm">Forgot password?</ThemedText>
+                            <ThemedText className="text-zinc-500 text-sm">Forgot password?</ThemedText>
                         </TouchableOpacity>
                     </Link>
                 </View>
 
                 <TouchableOpacity
-                    className="bg-black dark:bg-white p-4 rounded-xl items-center mt-4"
+                    style={{ backgroundColor: isDark ? Colors.dark.primary : Colors.light.primary }}
+                    className="p-4 rounded-xl items-center mt-4"
                     onPress={handleSubmit(onSubmit)}
                     disabled={isPending}
                 >
                     {isPending ? (
-                        <ActivityIndicator color={isDark ? '#111111' : '#ffffff'} />
+                        <ActivityIndicator color={Colors[colorScheme ?? 'light'].primaryForeground} />
                     ) : (
-                        <Text className="text-white dark:text-black font-semibold text-lg">Log In</Text>
+                        <Text style={{ color: Colors[colorScheme ?? 'light'].primaryForeground }} className="font-semibold text-lg">Log In</Text>
                     )}
                 </TouchableOpacity>
 
                 <View className="flex-row justify-center mt-6">
-                    <ThemedText className="text-gray-500">Don&apos;t have an account? </ThemedText>
+                    <ThemedText className="text-zinc-500">Don&apos;t have an account? </ThemedText>
                     <Link href="/(auth)/register" asChild>
                         <TouchableOpacity>
-                            <ThemedText type="defaultSemiBold" className="text-black dark:text-white">Sign Up</ThemedText>
+                            <ThemedText type="defaultSemiBold" style={{ color: Colors[colorScheme ?? 'light'].primary }}>Sign Up</ThemedText>
                         </TouchableOpacity>
                     </Link>
                 </View>

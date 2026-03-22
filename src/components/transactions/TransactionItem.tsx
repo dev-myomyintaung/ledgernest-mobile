@@ -7,6 +7,7 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { formatDateLabel, hexToRgba } from "@/utils/format";
 import { useAppCurrency } from "@/hooks/useAppCurrency";
+import { Colors, zinc } from '@/constants/theme';
 
 interface TransactionItemProps {
     transaction: Transaction;
@@ -21,11 +22,11 @@ export const TransactionItem = React.memo(({ transaction, isLast = false }: Tran
     const categoryColor =
         transaction.category?.color && transaction.category.color.startsWith("#")
             ? transaction.category.color
-            : "#6b7280";
+            : zinc[500];
     const title = transaction.description || transaction.category?.name || "Transaction";
     const subtitle = transaction.category?.name || formatDateLabel(transaction.date);
     const isIncome = transaction.type === "income";
-    const rowClassName = `flex-row justify-between items-center px-6 py-4 ${!isLast ? "border-b border-gray-100 dark:border-gray-800" : ""}`;
+    const rowClassName = `flex-row justify-between items-center px-6 py-4 ${!isLast ? "border-b border-zinc-100 dark:border-zinc-800" : ""}`;
 
     return (
         <View className={rowClassName}>
@@ -46,14 +47,14 @@ export const TransactionItem = React.memo(({ transaction, isLast = false }: Tran
                     <ThemedText type="defaultSemiBold" numberOfLines={1}>
                         {title}
                     </ThemedText>
-                    <ThemedText className="text-xs text-gray-400" numberOfLines={1}>
+                    <ThemedText className="text-xs text-zinc-400" numberOfLines={1}>
                         {subtitle}
                     </ThemedText>
                 </View>
             </View>
             <ThemedText
                 type="defaultSemiBold"
-                style={{ color: isIncome ? "#10B981" : undefined }}
+                style={{ color: isIncome ? Colors[colorScheme ?? 'light'].success : undefined }}
             >
                 {isIncome ? "+" : "-"}
                 {format(transaction.amount)}

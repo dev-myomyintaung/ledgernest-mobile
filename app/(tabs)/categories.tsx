@@ -12,6 +12,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { getFloatingTabContentPaddingBottom } from '@/constants/layout';
 import { useMemo, useCallback } from 'react';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { zinc, brand } from '@/constants/theme';
 
 export default function CategoriesScreen() {
     const insets = useSafeAreaInsets();
@@ -100,9 +101,9 @@ export default function CategoriesScreen() {
                 <TouchableOpacity
                     onPress={() => router.push('/create-category')}
                     className="w-10 h-10 rounded-full items-center justify-center"
-                    style={{ backgroundColor: isDark ? '#ffffff' : '#111111' }}
+                    style={{ backgroundColor: isDark ? brand[400] : brand[500] }}
                 >
-                    <IconSymbol name="plus" size={20} color={isDark ? '#111111' : '#ffffff'} />
+                    <IconSymbol name="plus" size={20} color={isDark ? zinc[900] : '#FFFFFF'} />
                 </TouchableOpacity>
             </View>
 

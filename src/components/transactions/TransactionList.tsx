@@ -7,6 +7,7 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { formatReceiptGroupDate } from "@/utils/format";
 import { useAppCurrency } from "@/hooks/useAppCurrency";
+import { Colors, zinc, semantic } from '@/constants/theme';
 import { TransactionItem } from './TransactionItem';
 import { TransactionSection } from '@/hooks/useTransactionSections';
 
@@ -40,7 +41,7 @@ export const TransactionList = ({ sections, isLoading, error, contentPaddingBott
                         </ThemedText>
                         <ThemedText
                             type="defaultSemiBold"
-                            style={{ color: total > 0 ? "#10B981" : undefined }}
+                            style={{ color: total > 0 ? Colors[colorScheme ?? 'light'].success : undefined }}
                         >
                             {totalPrefix}
                             {format(total)}
@@ -85,7 +86,7 @@ export const TransactionList = ({ sections, isLoading, error, contentPaddingBott
                     <View className="items-end">
                         <ThemedText
                             type="defaultSemiBold"
-                            style={{ color: total > 0 ? "#10B981" : undefined }}
+                            style={{ color: total > 0 ? Colors[colorScheme ?? 'light'].success : undefined }}
                         >
                             {totalPrefix}
                             {format(total)}
@@ -95,7 +96,7 @@ export const TransactionList = ({ sections, isLoading, error, contentPaddingBott
                                 <IconSymbol
                                     name="chevron.right"
                                     size={10}
-                                    color={isDark ? "#a1a1aa" : "#71717a"}
+                                    color={zinc[isDark ? 400 : 500]}
                                 />
                             </View>
                         ) : null}
@@ -116,7 +117,7 @@ export const TransactionList = ({ sections, isLoading, error, contentPaddingBott
     if (!isLoading && error) {
         return (
             <View className="px-6 py-10 items-center">
-                <ThemedText className="text-red-500">
+                <ThemedText style={{ color: semantic.danger.light }}>
                     Failed to load transactions
                 </ThemedText>
             </View>

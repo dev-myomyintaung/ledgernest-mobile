@@ -7,6 +7,8 @@ import { z } from 'zod';
 
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors, zinc, semantic } from '@/constants/theme';
 
 const registerSchema = z.object({
     email: z.string().email('Invalid email address'),
@@ -20,6 +22,8 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterScreen() {
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === 'dark';
     const {
         control,
         handleSubmit,
@@ -42,7 +46,7 @@ export default function RegisterScreen() {
         <ThemedView className="flex-1 justify-center px-4">
             <View className="mb-8">
                 <ThemedText type="title" className="text-3xl font-bold mb-2">Create Account</ThemedText>
-                <ThemedText className="text-gray-500">Sign up to start tracking your budget</ThemedText>
+                <ThemedText className="text-zinc-500">Sign up to start tracking your budget</ThemedText>
             </View>
 
             <View className="space-y-4">
@@ -56,12 +60,12 @@ export default function RegisterScreen() {
                                 style={{
                                     height: 52, borderRadius: 12, paddingHorizontal: 16,
                                     borderWidth: 1, fontSize: 16, textAlignVertical: 'center',
-                                    backgroundColor: '#f3f4f6',
-                                    borderColor: errors.email ? '#ef4444' : '#e5e7eb',
-                                    color: '#000000',
+                                    backgroundColor: isDark ? zinc[800] : zinc[100],
+                                    borderColor: errors.email ? semantic.danger.light : isDark ? zinc[700] : zinc[200],
+                                    color: isDark ? zinc[50] : zinc[900],
                                 }}
                                 placeholder="Enter your email"
-                                placeholderTextColor="#9CA3AF"
+                                placeholderTextColor={zinc[400]}
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 value={value}
@@ -71,7 +75,7 @@ export default function RegisterScreen() {
                         )}
                     />
                     {errors.email && (
-                        <Text className="text-red-500 text-sm mt-1">{errors.email.message}</Text>
+                        <Text style={{ color: semantic.danger.light }} className="text-sm mt-1">{errors.email.message}</Text>
                     )}
                 </View>
 
@@ -85,12 +89,12 @@ export default function RegisterScreen() {
                                 style={{
                                     height: 52, borderRadius: 12, paddingHorizontal: 16,
                                     borderWidth: 1, fontSize: 16, textAlignVertical: 'center',
-                                    backgroundColor: '#111111',
-                                    borderColor: errors.password ? '#ef4444' : '#ffffff',
-                                    color: '#ffffff',
+                                    backgroundColor: isDark ? zinc[800] : zinc[100],
+                                    borderColor: errors.password ? semantic.danger.light : isDark ? zinc[700] : zinc[200],
+                                    color: isDark ? zinc[50] : zinc[900],
                                 }}
                                 placeholder="Create a password"
-                                placeholderTextColor="#a1a1aa"
+                                placeholderTextColor={zinc[400]}
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 value={value}
@@ -99,7 +103,7 @@ export default function RegisterScreen() {
                         )}
                     />
                     {errors.password && (
-                        <Text className="text-red-500 text-sm mt-1">{errors.password.message}</Text>
+                        <Text style={{ color: semantic.danger.light }} className="text-sm mt-1">{errors.password.message}</Text>
                     )}
                 </View>
 
@@ -113,12 +117,12 @@ export default function RegisterScreen() {
                                 style={{
                                     height: 52, borderRadius: 12, paddingHorizontal: 16,
                                     borderWidth: 1, fontSize: 16, textAlignVertical: 'center',
-                                    backgroundColor: '#111111',
-                                    borderColor: errors.confirmPassword ? '#ef4444' : '#ffffff',
-                                    color: '#ffffff',
+                                    backgroundColor: isDark ? zinc[800] : zinc[100],
+                                    borderColor: errors.confirmPassword ? semantic.danger.light : isDark ? zinc[700] : zinc[200],
+                                    color: isDark ? zinc[50] : zinc[900],
                                 }}
                                 placeholder="Confirm your password"
-                                placeholderTextColor="#a1a1aa"
+                                placeholderTextColor={zinc[400]}
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 value={value}
@@ -127,22 +131,23 @@ export default function RegisterScreen() {
                         )}
                     />
                     {errors.confirmPassword && (
-                        <Text className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</Text>
+                        <Text style={{ color: semantic.danger.light }} className="text-sm mt-1">{errors.confirmPassword.message}</Text>
                     )}
                 </View>
 
                 <TouchableOpacity
-                    className="bg-black dark:bg-white p-4 rounded-xl items-center mt-4"
+                    style={{ backgroundColor: isDark ? Colors.dark.primary : Colors.light.primary }}
+                    className="p-4 rounded-xl items-center mt-4"
                     onPress={handleSubmit(onSubmit)}
                 >
-                    <Text className="text-white dark:text-black font-semibold text-lg">Sign Up</Text>
+                    <Text style={{ color: Colors[colorScheme ?? 'light'].primaryForeground }} className="font-semibold text-lg">Sign Up</Text>
                 </TouchableOpacity>
 
                 <View className="flex-row justify-center mt-6">
-                    <ThemedText className="text-gray-500">Already have an account? </ThemedText>
+                    <ThemedText className="text-zinc-500">Already have an account? </ThemedText>
                     <Link href="/(auth)/login" asChild>
                         <TouchableOpacity>
-                            <ThemedText type="defaultSemiBold" className="text-black dark:text-white">Log In</ThemedText>
+                            <ThemedText type="defaultSemiBold" style={{ color: Colors[colorScheme ?? 'light'].primary }}>Log In</ThemedText>
                         </TouchableOpacity>
                     </Link>
                 </View>

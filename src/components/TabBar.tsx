@@ -10,6 +10,7 @@ import {
     FLOATING_TAB_FAB_SIZE,
     getFloatingTabBottomOffset,
 } from '@/constants/layout';
+import { Colors, zinc } from '@/constants/theme';
 
 const TAB_HEIGHT = FLOATING_TAB_DOCK_HEIGHT;
 const CENTER_BUTTON_SIZE = FLOATING_TAB_FAB_SIZE;
@@ -22,12 +23,13 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
 
-    const activeColor = isDark ? '#ffffff' : '#000000';
-    const inactiveColor = isDark ? '#9ca3af' : '#9ca3af';
-    const dockBackground = isDark ? '#0b0b0c' : '#ffffff';
-    const dockBorder = isDark ? '#27272a' : '#e5e7eb';
-    const fabBackground = isDark ? '#ffffff' : '#000000';
-    const fabIconColor = isDark ? '#000000' : '#ffffff';
+    const colors = Colors[colorScheme ?? 'light'];
+    const activeColor = colors.tabIconSelected;
+    const inactiveColor = colors.tabIconDefault;
+    const dockBackground = colors.background;
+    const dockBorder = isDark ? zinc[800] : zinc[200];
+    const fabBackground = colors.primary;
+    const fabIconColor = colors.primaryForeground;
     const bottomOffset = getFloatingTabBottomOffset(insets.bottom);
 
     const routes = state.routes;

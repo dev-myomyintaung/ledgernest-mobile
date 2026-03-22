@@ -13,8 +13,9 @@ import { useAppCurrency } from '@/hooks/useAppCurrency';
 import { useAuthStore } from '@/store/authStore';
 import { hexToRgba } from '@/utils/format';
 import { useMemo, useCallback } from 'react';
+import { Colors, zinc, semantic, brand } from '@/constants/theme';
 
-const FALLBACK_COLOR = '#71717a';
+const FALLBACK_COLOR = zinc[500];
 
 // ── Date helpers ────────────────────────────────────────────────────────────
 const now = new Date();
@@ -81,7 +82,7 @@ export default function DashboardScreen() {
     return last7Days.map(({ dateStr, label }) => ({
       value: Math.round((byDay[dateStr] ?? 0) * 100) / 100,
       label,
-      frontColor: isDark ? '#ffffff' : '#000000',
+      frontColor: isDark ? zinc[50] : zinc[900],
       barBorderTopLeftRadius: 8,
       barBorderTopRightRadius: 8,
     }));
@@ -123,7 +124,7 @@ export default function DashboardScreen() {
               onPress={() => router.push('/profile')}
               className="w-9 h-9 rounded-full border border-zinc-200 dark:border-zinc-700 items-center justify-center"
             >
-              <IconSymbol name="person.circle.fill" size={19} color={isDark ? '#d4d4d8' : '#3f3f46'} />
+              <IconSymbol name="person.circle.fill" size={19} color={Colors[colorScheme ?? 'light'].icon} />
             </TouchableOpacity>
           </View>
 
@@ -134,21 +135,21 @@ export default function DashboardScreen() {
             </View>
           ) : (
             <View className="mb-6">
-              <ThemedText className="text-gray-500 text-sm font-medium mb-1">Net Balance</ThemedText>
+              <ThemedText className="text-zinc-500 text-sm font-medium mb-1">Net Balance</ThemedText>
               <ThemedText
                 className="text-5xl font-bold"
-                style={{ color: netBalance < 0 ? '#dc2626' : undefined }}
+                style={{ color: netBalance < 0 ? semantic.danger.light : undefined }}
               >
                 {netBalance < 0 ? `-${format(Math.abs(netBalance))}` : format(netBalance)}
               </ThemedText>
               <View className="flex-row gap-4 mt-2">
                 <View className="flex-row items-center gap-1">
-                  <IconSymbol name="arrow.up.circle" size={14} color="#10b981" />
-                  <ThemedText className="text-xs text-gray-500">{format(totalIncome)}</ThemedText>
+                  <IconSymbol name="arrow.up.circle" size={14} color={Colors[colorScheme ?? 'light'].success} />
+                  <ThemedText className="text-xs text-zinc-500">{format(totalIncome)}</ThemedText>
                 </View>
                 <View className="flex-row items-center gap-1">
-                  <IconSymbol name="arrow.down.circle" size={14} color="#dc2626" />
-                  <ThemedText className="text-xs text-gray-500">{format(totalExpense)}</ThemedText>
+                  <IconSymbol name="arrow.down.circle" size={14} color={Colors[colorScheme ?? 'light'].danger} />
+                  <ThemedText className="text-xs text-zinc-500">{format(totalExpense)}</ThemedText>
                 </View>
               </View>
             </View>
@@ -157,7 +158,7 @@ export default function DashboardScreen() {
 
         {/* Bar chart — last 7 days */}
         <View className="mb-8 px-4">
-          <ThemedText className="text-gray-400 text-xs font-bold mb-3 tracking-widest">
+          <ThemedText className="text-zinc-400 text-xs font-bold mb-3 tracking-widest">
             LAST 7 DAYS
           </ThemedText>
           {txLoading ? (
@@ -177,8 +178,8 @@ export default function DashboardScreen() {
               xAxisThickness={0}
               hideYAxisText
               rulesType="solid"
-              rulesColor={isDark ? '#3f3f46' : '#e4e4e7'}
-              xAxisLabelTextStyle={{ color: 'gray', fontSize: 11, fontWeight: '500' }}
+              rulesColor={isDark ? zinc[700] : zinc[200]}
+              xAxisLabelTextStyle={{ color: zinc[500], fontSize: 11, fontWeight: '500' }}
               isAnimated
             />
           )}
@@ -186,7 +187,7 @@ export default function DashboardScreen() {
 
         {/* Recent transactions */}
         <View className="px-4 mb-8">
-          <ThemedText className="text-gray-400 text-xs font-bold mb-2 tracking-widest">
+          <ThemedText className="text-zinc-400 text-xs font-bold mb-2 tracking-widest">
             RECENT TRANSACTIONS
           </ThemedText>
 
@@ -224,7 +225,7 @@ export default function DashboardScreen() {
                           {title}
                         </ThemedText>
                         {subtitle ? (
-                          <ThemedText className="text-xs text-gray-500" numberOfLines={1}>
+                          <ThemedText className="text-xs text-zinc-500" numberOfLines={1}>
                             {subtitle}
                           </ThemedText>
                         ) : null}
@@ -233,7 +234,7 @@ export default function DashboardScreen() {
                     <ThemedText
                       type="defaultSemiBold"
                       className="text-sm"
-                      style={{ color: isIncome ? '#10b981' : undefined }}
+                      style={{ color: isIncome ? Colors[colorScheme ?? 'light'].success : undefined }}
                     >
                       {isIncome ? '+' : '-'}{format(tx.amount)}
                     </ThemedText>
@@ -242,7 +243,7 @@ export default function DashboardScreen() {
               })}
               <Link href="/(tabs)/transactions" asChild>
                 <TouchableOpacity className="py-4 border-t border-zinc-100 dark:border-zinc-800">
-                  <ThemedText className="text-gray-400 text-xs font-bold">SEE ALL</ThemedText>
+                  <ThemedText className="text-zinc-400 text-xs font-bold">SEE ALL</ThemedText>
                 </TouchableOpacity>
               </Link>
             </View>
@@ -251,7 +252,7 @@ export default function DashboardScreen() {
 
         {/* Budget overview */}
         <View className="px-4 mb-6">
-          <ThemedText className="text-gray-400 text-xs font-bold mb-4 tracking-widest">BUDGET</ThemedText>
+          <ThemedText className="text-zinc-400 text-xs font-bold mb-4 tracking-widest">BUDGET</ThemedText>
 
           {budgetLoading ? (
             <View className="py-4 items-center"><ActivityIndicator /></View>
@@ -261,7 +262,7 @@ export default function DashboardScreen() {
             <>
               <View className="mb-4 flex-row items-baseline gap-2">
                 <ThemedText className="text-4xl font-bold">{format(totalBudgetSpent)}</ThemedText>
-                <ThemedText className="text-sm text-gray-400">/ {format(totalBudgetLimit)}</ThemedText>
+                <ThemedText className="text-sm text-zinc-400">/ {format(totalBudgetLimit)}</ThemedText>
               </View>
 
               <View className="h-1 bg-zinc-100 dark:bg-zinc-800 w-full mb-6 rounded-full overflow-hidden">
@@ -269,7 +270,7 @@ export default function DashboardScreen() {
                   className="h-full rounded-full"
                   style={{
                     width: `${Math.min(budgetProgress * 100, 100)}%`,
-                    backgroundColor: budgetProgress >= 1 ? '#dc2626' : isDark ? '#ffffff' : '#000000',
+                    backgroundColor: budgetProgress >= 1 ? Colors[colorScheme ?? 'light'].danger : isDark ? brand[400] : brand[500],
                   }}
                 />
               </View>
@@ -279,7 +280,7 @@ export default function DashboardScreen() {
                   const ratio    = budget.amount > 0 ? budget.progress.spent / budget.amount : 0;
                   const pct      = Math.min(ratio, 1) * 100;
                   const color    = budget.category.color ?? FALLBACK_COLOR;
-                  const barColor = ratio >= 1 ? '#dc2626' : color;
+                  const barColor = ratio >= 1 ? Colors[colorScheme ?? 'light'].danger : color;
                   return (
                     <View key={budget.id}>
                       <View className="flex-row justify-between items-center mb-1.5">
@@ -287,7 +288,7 @@ export default function DashboardScreen() {
                           <View className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
                           <ThemedText className="text-sm" numberOfLines={1}>{budget.name}</ThemedText>
                         </View>
-                        <ThemedText className="text-xs text-gray-500">
+                        <ThemedText className="text-xs text-zinc-500">
                           {format(budget.progress.spent)} / {format(budget.amount)}
                         </ThemedText>
                       </View>
@@ -303,7 +304,7 @@ export default function DashboardScreen() {
                 {activeBudgets.length > 4 ? (
                   <Link href="/(tabs)/budget" asChild>
                     <TouchableOpacity>
-                      <ThemedText className="text-gray-400 text-xs font-bold">
+                      <ThemedText className="text-zinc-400 text-xs font-bold">
                         +{activeBudgets.length - 4} MORE
                       </ThemedText>
                     </TouchableOpacity>

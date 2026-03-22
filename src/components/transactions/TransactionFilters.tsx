@@ -5,6 +5,7 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { FilterState, FilterType, FilterSource } from "@/hooks/useFilteredTransactions";
 import { Category } from "@/api/endpoints/categories";
+import { Colors, zinc } from '@/constants/theme';
 
 interface TransactionFiltersProps {
     filters: FilterState;
@@ -39,13 +40,13 @@ export const TransactionFilters = ({ filters, onToggleFilter, categories }: Tran
                         <TouchableOpacity
                             key={category.id}
                             onPress={() => onToggleFilter("categoryIds", category.id)}
-                            className={`flex-row items-center px-4 py-3 rounded-full border ${isSelected ? "bg-black border-black dark:bg-white dark:border-white" : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"}`}
+                            className={`flex-row items-center px-4 py-3 rounded-full border ${isSelected ? "bg-brand-500 border-brand-500 dark:bg-brand-400 dark:border-brand-400" : "bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800"}`}
                         >
                             {categoryIcon.includes(".") ? (
                                 <IconSymbol
                                     name={categoryIcon as any}
                                     size={18}
-                                    color={isSelected ? (isDark ? "#000" : "#fff") : (isDark ? "#a1a1aa" : "#71717a")}
+                                    color={isSelected ? (isDark ? zinc[900] : '#FFFFFF') : (isDark ? zinc[400] : zinc[500])}
                                     style={{ marginRight: 8 }}
                                 />
                             ) : (
@@ -54,7 +55,7 @@ export const TransactionFilters = ({ filters, onToggleFilter, categories }: Tran
                                 </Text>
                             )}
                             <Text
-                                className={`font-semibold ${isSelected ? "text-white dark:text-black" : "text-gray-900 dark:text-gray-100"}`}
+                                className={`font-semibold ${isSelected ? "text-zinc-50 dark:text-zinc-900" : "text-zinc-900 dark:text-zinc-50"}`}
                             >
                                 {category.name}
                             </Text>

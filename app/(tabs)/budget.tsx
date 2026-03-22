@@ -11,8 +11,9 @@ import { useMemo, useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { getFloatingTabContentPaddingBottom } from '@/constants/layout';
 import { CreateBudgetSheet } from '@/components/budgets/CreateBudgetSheet';
+import { Colors, zinc, brand } from '@/constants/theme';
 
-const FALLBACK_COLOR = '#71717a';
+const FALLBACK_COLOR = zinc[500];
 
 const getPeriodLabel = (period: string) => {
     const now = new Date();
@@ -69,7 +70,7 @@ export default function BudgetScreen() {
 
     const chartData = useMemo(() => {
         const slices = enriched.map((b) => ({ value: b.progress.spent, color: b.hex }));
-        if (remaining > 0) slices.push({ value: remaining, color: isDark ? '#3f3f46' : '#e5e7eb' });
+        if (remaining > 0) slices.push({ value: remaining, color: isDark ? zinc[700] : zinc[200] });
         return slices;
     }, [enriched, remaining, isDark]);
 
@@ -82,14 +83,14 @@ export default function BudgetScreen() {
             <View className="px-4 pt-4 pb-3 flex-row items-start justify-between">
                 <View>
                     <ThemedText type="title">Budgets</ThemedText>
-                    <ThemedText className="text-gray-500 mt-1">{periodLabel}</ThemedText>
+                    <ThemedText className="text-zinc-500 mt-1">{periodLabel}</ThemedText>
                 </View>
                 <TouchableOpacity
                     onPress={() => setSheetVisible(true)}
                     className="w-10 h-10 rounded-full items-center justify-center"
-                    style={{ backgroundColor: isDark ? '#ffffff' : '#111111', marginTop: 4 }}
+                    style={{ backgroundColor: isDark ? brand[400] : brand[500], marginTop: 4 }}
                 >
-                    <IconSymbol name="plus" size={20} color={isDark ? '#111111' : '#ffffff'} />
+                    <IconSymbol name="plus" size={20} color={isDark ? zinc[900] : '#FFFFFF'} />
                 </TouchableOpacity>
             </View>
 
@@ -107,11 +108,11 @@ export default function BudgetScreen() {
                     <View className="mb-6 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-5">
                         <View className="flex-row items-start justify-between">
                             <View className="flex-1 pr-4">
-                                <ThemedText className="text-xs tracking-widest text-gray-500">TOTAL SPEND</ThemedText>
+                                <ThemedText className="text-xs tracking-widest text-zinc-500">TOTAL SPEND</ThemedText>
                                 <ThemedText className="text-4xl font-bold mt-2">
                                     {format(totalSpent)}
                                 </ThemedText>
-                                <ThemedText className="text-gray-500 text-sm mt-2">
+                                <ThemedText className="text-zinc-500 text-sm mt-2">
                                     {format(totalLimit)} budgeted
                                 </ThemedText>
                             </View>
@@ -122,12 +123,12 @@ export default function BudgetScreen() {
                                     donut
                                     radius={52}
                                     innerRadius={36}
-                                    innerCircleColor={isDark ? '#18181b' : '#ffffff'}
-                                    strokeColor={isDark ? '#18181b' : '#ffffff'}
+                                    innerCircleColor={Colors[colorScheme ?? 'light'].background}
+                                    strokeColor={Colors[colorScheme ?? 'light'].background}
                                     strokeWidth={1}
                                     centerLabelComponent={() => (
                                         <View className="items-center justify-center">
-                                            <ThemedText className="text-[10px] text-gray-500">Used</ThemedText>
+                                            <ThemedText className="text-[10px] text-zinc-500">Used</ThemedText>
                                             <ThemedText className="text-sm font-bold">
                                                 {Math.round(utilization * 100)}%
                                             </ThemedText>
@@ -141,10 +142,10 @@ export default function BudgetScreen() {
 
                     {/* Needs attention */}
                     <View className="mb-6">
-                        <ThemedText className="text-xs tracking-widest text-gray-500 mb-3">NEEDS ATTENTION</ThemedText>
+                        <ThemedText className="text-xs tracking-widest text-zinc-500 mb-3">NEEDS ATTENTION</ThemedText>
                         {needsAttention.length === 0 ? (
                             <View className="rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-700 p-4">
-                                <ThemedText className="text-sm text-gray-500">Everything is on track.</ThemedText>
+                                <ThemedText className="text-sm text-zinc-500">Everything is on track.</ThemedText>
                             </View>
                         ) : (
                             <View className="gap-3">
@@ -157,7 +158,7 @@ export default function BudgetScreen() {
                                                 <ThemedText type="defaultSemiBold" className="text-sm flex-1" numberOfLines={1}>
                                                     {budget.name}
                                                 </ThemedText>
-                                                <ThemedText className="text-xs text-gray-500">
+                                                <ThemedText className="text-xs text-zinc-500">
                                                     {format(budget.progress.spent)} / {format(budget.amount)}
                                                 </ThemedText>
                                             </View>
@@ -167,7 +168,7 @@ export default function BudgetScreen() {
                                                     className="h-full rounded-full"
                                                     style={{
                                                         width: `${progress}%`,
-                                                        backgroundColor: budget.ratio >= 1 ? '#dc2626' : budget.hex,
+                                                        backgroundColor: budget.ratio >= 1 ? Colors[colorScheme ?? 'light'].danger : budget.hex,
                                                     }}
                                                 />
                                             </View>
@@ -181,7 +182,7 @@ export default function BudgetScreen() {
                     {/* On track */}
                     {onTrack.length > 0 ? (
                         <View className="mb-8">
-                            <ThemedText className="text-xs tracking-widest text-gray-500 mb-3">ON TRACK</ThemedText>
+                            <ThemedText className="text-xs tracking-widest text-zinc-500 mb-3">ON TRACK</ThemedText>
                             <View className="gap-3">
                                 {onTrack.map((budget) => {
                                     const progress = Math.min(budget.ratio, 1) * 100;
@@ -192,7 +193,7 @@ export default function BudgetScreen() {
                                                 <ThemedText type="defaultSemiBold" className="text-sm flex-1" numberOfLines={1}>
                                                     {budget.name}
                                                 </ThemedText>
-                                                <ThemedText className="text-xs text-gray-500">
+                                                <ThemedText className="text-xs text-zinc-500">
                                                     {format(budget.progress.spent)} / {format(budget.amount)}
                                                 </ThemedText>
                                             </View>
@@ -214,8 +215,8 @@ export default function BudgetScreen() {
                             onPress={() => setSheetVisible(true)}
                             className="rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-700 p-8 items-center mb-6"
                         >
-                            <IconSymbol name="plus" size={26} color={isDark ? '#a1a1aa' : '#71717a'} />
-                            <ThemedText className="text-gray-500 mt-2 text-base">Create your first budget</ThemedText>
+                            <IconSymbol name="plus" size={26} color={Colors[colorScheme ?? 'light'].icon} />
+                            <ThemedText className="text-zinc-500 mt-2 text-base">Create your first budget</ThemedText>
                         </TouchableOpacity>
                     ) : null}
                 </ScrollView>

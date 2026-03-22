@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LedgerNest — Palette v2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #FAFAFA;
+    color: #18181B;
+    padding: 48px 40px;
+    max-width: 960px;
+  }
+
+  h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }
+  .subtitle { font-size: 13px; color: #71717A; margin-top: 4px; margin-bottom: 52px; }
+
+  .section { margin-bottom: 52px; }
+  .section-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.8px;
+    text-transform: uppercase; color: #A1A1AA; margin-bottom: 20px;
+  }
+
+  /* Shade row */
+  .shade-row { display: flex; gap: 4px; }
+  .shade { flex: 1; }
+  .shade-block { height: 52px; border-radius: 8px; }
+  .shade-meta { font-size: 10px; color: #A1A1AA; margin-top: 6px; text-align: center; font-family: monospace; }
+  .shade-num { font-size: 10px; color: #71717A; text-align: center; font-weight: 600; }
+
+  /* Semantic pills */
+  .semantic-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .semantic-pill {
+    border-radius: 12px; overflow: hidden; width: 148px;
+    border: 1px solid #E4E4E7;
+  }
+  .semantic-bar { height: 56px; }
+  .semantic-info { padding: 10px 12px; background: #FFFFFF; }
+  .semantic-name { font-size: 12px; font-weight: 600; color: #18181B; }
+  .semantic-use { font-size: 11px; color: #A1A1AA; margin-top: 2px; }
+  .semantic-hex { font-size: 10px; color: #D4D4D8; font-family: monospace; margin-top: 4px; }
+
+  /* Mode mockups */
+  .modes { display: flex; gap: 20px; flex-wrap: wrap; }
+  .phone {
+    width: 300px; border-radius: 28px; padding: 28px 22px; 28px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    overflow: hidden;
+  }
+  .phone-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 22px; }
+
+  .greeting { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
+  .greeting-sub { font-size: 12px; margin-bottom: 22px; }
+
+  .budget-card {
+    border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
+  }
+  .bc-row { display: flex; justify-content: space-between; align-items: flex-start; }
+  .bc-name { font-size: 13px; font-weight: 600; }
+  .bc-sub { font-size: 11px; margin-top: 2px; }
+  .bc-pct { font-size: 16px; font-weight: 700; }
+  .track { height: 5px; border-radius: 99px; margin-top: 12px; overflow: hidden; }
+  .fill { height: 100%; border-radius: 99px; }
+
+  .btn-row { display: flex; gap: 8px; margin-top: 18px; }
+  .btn {
+    flex: 1; padding: 11px 0; border-radius: 12px;
+    font-size: 13px; font-weight: 600; text-align: center;
+  }
+
+  .tag-row { display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap; }
+  .tag { padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+
+  /* Transaction list */
+  .tx-list { display: flex; flex-direction: column; gap: 2px; margin-top: 10px; }
+  .tx-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid transparent;
+  }
+  .tx-icon { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .tx-info { flex: 1; }
+  .tx-name { font-size: 13px; font-weight: 500; }
+  .tx-cat { font-size: 11px; margin-top: 1px; }
+  .tx-amt { font-size: 14px; font-weight: 600; }
+
+  /* Surface swatches */
+  .surface-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .surface-tile {
+    border-radius: 14px; padding: 18px 16px; width: 150px;
+  }
+  .st-name { font-size: 12px; font-weight: 600; }
+  .st-hex { font-size: 10px; font-family: monospace; margin-top: 4px; }
+
+  /* Type */
+  .type-rows { display: flex; flex-direction: column; gap: 14px; }
+  .type-row { display: flex; align-items: baseline; gap: 24px; }
+  .type-tag { font-size: 10px; color: #A1A1AA; font-family: monospace; width: 140px; flex-shrink: 0; }
+
+  /* Compare */
+  .compare { display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-start; }
+  .compare-col { display: flex; flex-direction: column; gap: 10px; }
+  .compare-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #A1A1AA; margin-bottom: 4px; }
+  .compare-row { display: flex; align-items: center; gap: 10px; }
+  .compare-swatch { width: 32px; height: 32px; border-radius: 8px; }
+  .compare-name { font-size: 12px; font-weight: 600; color: #3F3F46; }
+  .compare-hex { font-size: 10px; font-family: monospace; color: #A1A1AA; }
+
+  .arrow { font-size: 20px; color: #D4D4D8; align-self: center; padding-top: 20px; }
+
+  hr { border: none; border-top: 1px solid #E4E4E7; margin: 52px 0; }
+
+  .note { font-size: 11px; color: #A1A1AA; margin-top: 12px; line-height: 1.6; }
+  .badge { display: inline-block; background: #F4F4F5; color: #52525B; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; font-family: monospace; }
+</style>
+</head>
+<body>
+
+<h1>LedgerNest — Palette v2</h1>
+<p class="subtitle">Minimal · one brand color · muted semantics · zinc neutrals</p>
+
+<!-- BRAND -->
+<div class="section">
+  <div class="section-title">Brand — Soft Violet</div>
+  <div class="shade-row">
+    <div class="shade">
+      <div class="shade-block" style="background:#F5F3FF;border:1px solid #E4E4E7"></div>
+      <div class="shade-num">50</div><div class="shade-meta">#F5F3FF</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#EDE9FE;border:1px solid #E4E4E7"></div>
+      <div class="shade-num">100</div><div class="shade-meta">#EDE9FE</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#DDD6FE"></div>
+      <div class="shade-num">200</div><div class="shade-meta">#DDD6FE</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#C4B5FD"></div>
+      <div class="shade-num">300</div><div class="shade-meta">#C4B5FD</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#A78BFA"></div>
+      <div class="shade-num">400</div><div class="shade-meta">#A78BFA</div>
+    </div>
+    <div class="shade" style="position:relative">
+      <div class="shade-block" style="background:#7C6FF7;outline:2px solid #7C6FF7;outline-offset:3px"></div>
+      <div class="shade-num" style="color:#7C6FF7;font-weight:700">500 ★</div><div class="shade-meta">#7C6FF7</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#6D5FED"></div>
+      <div class="shade-num">600</div><div class="shade-meta">#6D5FED</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#5B4DD6"></div>
+      <div class="shade-num">700</div><div class="shade-meta">#5B4DD6</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#4237A8"></div>
+      <div class="shade-num">800</div><div class="shade-meta">#4237A8</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#2E2478"></div>
+      <div class="shade-num">900</div><div class="shade-meta">#2E2478</div>
+    </div>
+  </div>
+  <p class="note">★ main in both modes — <span class="badge">500</span> on light · <span class="badge">400</span> on dark. Only appears on: primary buttons, active tab indicator, progress fills, links.</p>
+</div>
+
+<!-- NEUTRALS -->
+<div class="section">
+  <div class="section-title">Neutrals — Zinc (warm gray)</div>
+  <div class="shade-row">
+    <div class="shade">
+      <div class="shade-block" style="background:#FAFAFA;border:1px solid #E4E4E7"></div>
+      <div class="shade-num">50</div><div class="shade-meta">#FAFAFA</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#F4F4F5;border:1px solid #E4E4E7"></div>
+      <div class="shade-num">100</div><div class="shade-meta">#F4F4F5</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#E4E4E7"></div>
+      <div class="shade-num">200</div><div class="shade-meta">#E4E4E7</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#D4D4D8"></div>
+      <div class="shade-num">300</div><div class="shade-meta">#D4D4D8</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#A1A1AA"></div>
+      <div class="shade-num">400</div><div class="shade-meta">#A1A1AA</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#71717A"></div>
+      <div class="shade-num">500</div><div class="shade-meta">#71717A</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#52525B"></div>
+      <div class="shade-num">600</div><div class="shade-meta">#52525B</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#3F3F46"></div>
+      <div class="shade-num">700</div><div class="shade-meta">#3F3F46</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#27272A"></div>
+      <div class="shade-num">800</div><div class="shade-meta">#27272A</div>
+    </div>
+    <div class="shade">
+      <div class="shade-block" style="background:#18181B"></div>
+      <div class="shade-num">900</div><div class="shade-meta">#18181B</div>
+    </div>
+  </div>
+  <p class="note">Zinc is warmer than slate or gray — avoids the cold/clinical feel while staying neutral.</p>
+</div>
+
+<!-- SEMANTIC -->
+<div class="section">
+  <div class="section-title">Semantic — Muted, Not Vivid</div>
+  <div class="semantic-row">
+
+    <div class="semantic-pill">
+      <div class="semantic-bar" style="background:#4D7C5F"></div>
+      <div class="semantic-info">
+        <div class="semantic-name">Success</div>
+        <div class="semantic-use">Budget on track · confirm</div>
+        <div class="semantic-hex">#4D7C5F · dark: #6A9E7F</div>
+      </div>
+    </div>
+
+    <div class="semantic-pill">
+      <div class="semantic-bar" style="background:#A16207"></div>
+      <div class="semantic-info">
+        <div class="semantic-name">Warning</div>
+        <div class="semantic-use">Near limit (≥80%)</div>
+        <div class="semantic-hex">#A16207 · dark: #CA8A04</div>
+      </div>
+    </div>
+
+    <div class="semantic-pill">
+      <div class="semantic-bar" style="background:#BE3A50"></div>
+      <div class="semantic-info">
+        <div class="semantic-name">Danger</div>
+        <div class="semantic-use">Over budget · errors</div>
+        <div class="semantic-hex">#BE3A50 · dark: #D95C72</div>
+      </div>
+    </div>
+
+    <div class="semantic-pill">
+      <div class="semantic-bar" style="background:#3A7EB5"></div>
+      <div class="semantic-info">
+        <div class="semantic-name">Info</div>
+        <div class="semantic-use">Pending · neutral notice</div>
+        <div class="semantic-hex">#3A7EB5 · dark: #5B9FD6</div>
+      </div>
+    </div>
+
+  </div>
+  <p class="note">All semantic colors are desaturated by ~30% vs typical Tailwind defaults — present but not screaming.</p>
+</div>
+
+<!-- SURFACES -->
+<div class="section">
+  <div class="section-title">Surfaces</div>
+  <div style="margin-bottom:12px;font-size:11px;color:#A1A1AA;font-weight:600;letter-spacing:0.5px">Light</div>
+  <div class="surface-row" style="margin-bottom:20px">
+    <div class="surface-tile" style="background:#FFFFFF;border:1px solid #E4E4E7">
+      <div class="st-name">background</div><div class="st-hex">#FFFFFF</div>
+    </div>
+    <div class="surface-tile" style="background:#FAFAFA;border:1px solid #E4E4E7">
+      <div class="st-name">surface</div><div class="st-hex">#FAFAFA</div>
+    </div>
+    <div class="surface-tile" style="background:#FFFFFF;border:1px solid #E4E4E7;box-shadow:0 4px 16px rgba(0,0,0,0.08)">
+      <div class="st-name">surface-raised</div><div class="st-hex">#FFFFFF + shadow</div>
+    </div>
+    <div class="surface-tile" style="background:#F4F4F5;border:1px solid #E4E4E7">
+      <div class="st-name">card</div><div class="st-hex">#F4F4F5</div>
+    </div>
+    <div class="surface-tile" style="background:#E4E4E7">
+      <div class="st-name">border</div><div class="st-hex">#E4E4E7</div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:12px;font-size:11px;color:#A1A1AA;font-weight:600;letter-spacing:0.5px">Dark</div>
+  <div class="surface-row">
+    <div class="surface-tile" style="background:#18181B">
+      <div class="st-name" style="color:#FAFAFA">background</div><div class="st-hex" style="color:#52525B">#18181B</div>
+    </div>
+    <div class="surface-tile" style="background:#27272A">
+      <div class="st-name" style="color:#FAFAFA">surface</div><div class="st-hex" style="color:#52525B">#27272A</div>
+    </div>
+    <div class="surface-tile" style="background:#3F3F46;box-shadow:0 4px 16px rgba(0,0,0,0.4)">
+      <div class="st-name" style="color:#FAFAFA">surface-raised</div><div class="st-hex" style="color:#71717A">#3F3F46</div>
+    </div>
+    <div class="surface-tile" style="background:#27272A;border:1px solid #3F3F46">
+      <div class="st-name" style="color:#FAFAFA">card</div><div class="st-hex" style="color:#52525B">#27272A</div>
+    </div>
+    <div class="surface-tile" style="background:#3F3F46">
+      <div class="st-name" style="color:#FAFAFA">border</div><div class="st-hex" style="color:#71717A">#3F3F46</div>
+    </div>
+  </div>
+</div>
+
+<hr />
+
+<!-- APP MOCKUPS -->
+<div class="section">
+  <div class="section-title">Scenes — 2–3 Colors Each</div>
+  <div class="modes">
+
+    <!-- LIGHT: Dashboard -->
+    <div class="phone" style="background:#FAFAFA">
+      <div class="phone-label" style="color:#A1A1AA">Dashboard · Light</div>
+      <div class="greeting" style="color:#18181B">March 2026</div>
+      <div class="greeting-sub" style="color:#71717A">$1,840 spent of $2,500</div>
+
+      <div class="budget-card" style="background:#FFFFFF;border:1px solid #E4E4E7">
+        <div class="bc-row">
+          <div>
+            <div class="bc-name" style="color:#18181B">Groceries</div>
+            <div class="bc-sub" style="color:#71717A">$148 of $200</div>
+          </div>
+          <div class="bc-pct" style="color:#7C6FF7">74%</div>
+        </div>
+        <div class="track" style="background:#F4F4F5">
+          <div class="fill" style="width:74%;background:#7C6FF7"></div>
+        </div>
+      </div>
+
+      <div class="budget-card" style="background:#FFFFFF;border:1px solid #E4E4E7">
+        <div class="bc-row">
+          <div>
+            <div class="bc-name" style="color:#18181B">Dining Out</div>
+            <div class="bc-sub" style="color:#A16207">$88 of $100</div>
+          </div>
+          <div class="bc-pct" style="color:#A16207">88%</div>
+        </div>
+        <div class="track" style="background:#F4F4F5">
+          <div class="fill" style="width:88%;background:#A16207"></div>
+        </div>
+      </div>
+
+      <div class="budget-card" style="background:#FFFFFF;border:1px solid #E4E4E7">
+        <div class="bc-row">
+          <div>
+            <div class="bc-name" style="color:#18181B">Transport</div>
+            <div class="bc-sub" style="color:#BE3A50">$130 of $100</div>
+          </div>
+          <div class="bc-pct" style="color:#BE3A50">130%</div>
+        </div>
+        <div class="track" style="background:#F4F4F5">
+          <div class="fill" style="width:100%;background:#BE3A50"></div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <div class="btn" style="background:#7C6FF7;color:#FFFFFF">Scan Receipt</div>
+        <div class="btn" style="background:#F4F4F5;color:#3F3F46">Add Budget</div>
+      </div>
+    </div>
+
+    <!-- DARK: Dashboard -->
+    <div class="phone" style="background:#18181B">
+      <div class="phone-label" style="color:#52525B">Dashboard · Dark</div>
+      <div class="greeting" style="color:#FAFAFA">March 2026</div>
+      <div class="greeting-sub" style="color:#71717A">$1,840 spent of $2,500</div>
+
+      <div class="budget-card" style="background:#27272A">
+        <div class="bc-row">
+          <div>
+            <div class="bc-name" style="color:#FAFAFA">Groceries</div>
+            <div class="bc-sub" style="color:#71717A">$148 of $200</div>
+          </div>
+          <div class="bc-pct" style="color:#A78BFA">74%</div>
+        </div>
+        <div class="track" style="background:#3F3F46">
+          <div class="fill" style="width:74%;background:#A78BFA"></div>
+        </div>
+      </div>
+
+      <div class="budget-card" style="background:#27272A">
+        <div class="bc-row">
+          <div>
+            <div class="bc-name" style="color:#FAFAFA">Dining Out</div>
+            <div class="bc-sub" style="color:#CA8A04">$88 of $100</div>
+          </div>
+          <div class="bc-pct" style="color:#CA8A04">88%</div>
+        </div>
+        <div class="track" style="background:#3F3F46">
+          <div class="fill" style="width:88%;background:#CA8A04"></div>
+        </div>
+      </div>
+
+      <div class="budget-card" style="background:#27272A">
+        <div class="bc-row">
+          <div>
+            <div class="bc-name" style="color:#FAFAFA">Transport</div>
+            <div class="bc-sub" style="color:#D95C72">$130 of $100</div>
+          </div>
+          <div class="bc-pct" style="color:#D95C72">130%</div>
+        </div>
+        <div class="track" style="background:#3F3F46">
+          <div class="fill" style="width:100%;background:#D95C72"></div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <div class="btn" style="background:#A78BFA;color:#18181B">Scan Receipt</div>
+        <div class="btn" style="background:#27272A;color:#A78BFA;border:1px solid #3F3F46">Add Budget</div>
+      </div>
+    </div>
+
+    <!-- LIGHT: Transactions -->
+    <div class="phone" style="background:#FAFAFA">
+      <div class="phone-label" style="color:#A1A1AA">Transactions · Light</div>
+      <div class="greeting" style="color:#18181B">This Week</div>
+      <div class="greeting-sub" style="color:#71717A">12 transactions</div>
+
+      <div class="tx-list">
+        <div class="tx-row" style="border-bottom-color:#F4F4F5">
+          <div class="tx-icon" style="background:#F4F4F5">🛒</div>
+          <div class="tx-info">
+            <div class="tx-name" style="color:#18181B">Whole Foods</div>
+            <div class="tx-cat" style="color:#A1A1AA">Groceries · today</div>
+          </div>
+          <div class="tx-amt" style="color:#BE3A50">−$54.20</div>
+        </div>
+        <div class="tx-row" style="border-bottom-color:#F4F4F5">
+          <div class="tx-icon" style="background:#F4F4F5">🍜</div>
+          <div class="tx-info">
+            <div class="tx-name" style="color:#18181B">Ramen Place</div>
+            <div class="tx-cat" style="color:#A1A1AA">Dining · yesterday</div>
+          </div>
+          <div class="tx-amt" style="color:#BE3A50">−$22.00</div>
+        </div>
+        <div class="tx-row" style="border-bottom-color:#F4F4F5">
+          <div class="tx-icon" style="background:#EDE9FE">💼</div>
+          <div class="tx-info">
+            <div class="tx-name" style="color:#18181B">Salary</div>
+            <div class="tx-cat" style="color:#A1A1AA">Income · Mon</div>
+          </div>
+          <div class="tx-amt" style="color:#4D7C5F">+$3,200</div>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:#F4F4F5">⛽</div>
+          <div class="tx-info">
+            <div class="tx-name" style="color:#18181B">Shell Station</div>
+            <div class="tx-cat" style="color:#A1A1AA">Transport · Mon</div>
+          </div>
+          <div class="tx-amt" style="color:#BE3A50">−$68.00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARK: Transactions -->
+    <div class="phone" style="background:#18181B">
+      <div class="phone-label" style="color:#52525B">Transactions · Dark</div>
+      <div class="greeting" style="color:#FAFAFA">This Week</div>
+      <div class="greeting-sub" style="color:#71717A">12 transactions</div>
+
+      <div class="tx-list">
+        <div class="tx-row" style="border-bottom-color:#27272A">
+          <div class="tx-icon" style="background:#27272A">🛒</div>
+          <div class="tx-info">
+            <div class="tx-name" style="color:#FAFAFA">Whole Foods</div>
+            <div class="tx-cat" style="color:#52525B">Groceries · today</div>
+          </div>
+          <div class="tx-amt" style="color:#D95C72">−$54.20</div>
+        </div>
+        <div class="tx-row" style="border-bottom-color:#27272A">
+          <div class="tx-icon" style="background:#27272A">🍜</div>
+          <div class="tx-info">
+            <div class="tx-name" style="color:#FAFAFA">Ramen Place</div>
+            <div class="tx-cat" style="color:#52525B">Dining · yesterday</div>
+          </div>
+          <div class="tx-amt" style="color:#D95C72">−$22.00</div>
+        </div>
+        <div class="tx-row" style="border-bottom-color:#27272A">
+          <div class="tx-icon" style="background:#2E2478">💼</div>
+          <div class="tx-info">
+            <div class="tx-name" style="color:#FAFAFA">Salary</div>
+            <div class="tx-cat" style="color:#52525B">Income · Mon</div>
+          </div>
+          <div class="tx-amt" style="color:#6A9E7F">+$3,200</div>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:#27272A">⛽</div>
+          <div class="tx-info">
+            <div class="tx-name" style="color:#FAFAFA">Shell Station</div>
+            <div class="tx-cat" style="color:#52525B">Transport · Mon</div>
+          </div>
+          <div class="tx-amt" style="color:#D95C72">−$68.00</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr />
+
+<!-- TYPOGRAPHY -->
+<div class="section">
+  <div class="section-title">Typography Scale</div>
+  <div class="type-rows">
+    <div class="type-row">
+      <div class="type-tag">3xl · 30px · 700</div>
+      <div style="font-size:30px;font-weight:700;color:#18181B;letter-spacing:-0.5px">$4,280.00</div>
+    </div>
+    <div class="type-row">
+      <div class="type-tag">2xl · 24px · 700</div>
+      <div style="font-size:24px;font-weight:700;color:#18181B;letter-spacing:-0.3px">Dashboard</div>
+    </div>
+    <div class="type-row">
+      <div class="type-tag">xl · 20px · 600</div>
+      <div style="font-size:20px;font-weight:600;color:#18181B">This Month's Budgets</div>
+    </div>
+    <div class="type-row">
+      <div class="type-tag">lg · 18px · 600</div>
+      <div style="font-size:18px;font-weight:600;color:#3F3F46">Groceries · $148</div>
+    </div>
+    <div class="type-row">
+      <div class="type-tag">base · 16px · 400</div>
+      <div style="font-size:16px;font-weight:400;color:#3F3F46">Whole Foods Market — 12 items scanned</div>
+    </div>
+    <div class="type-row">
+      <div class="type-tag">sm · 14px · 400</div>
+      <div style="font-size:14px;font-weight:400;color:#71717A">Linked to Groceries budget · March 18</div>
+    </div>
+    <div class="type-row">
+      <div class="type-tag">xs · 12px · 500</div>
+      <div style="font-size:12px;font-weight:500;color:#A1A1AA;text-transform:uppercase;letter-spacing:0.8px">2 hours ago</div>
+    </div>
+  </div>
+</div>
+
+<hr />
+
+<!-- COMPARE -->
+<div class="section">
+  <div class="section-title">Before → After</div>
+  <div class="compare">
+
+    <div class="compare-col">
+      <div class="compare-label">Current</div>
+      <div class="compare-row">
+        <div class="compare-swatch" style="background:#111111"></div>
+        <div><div class="compare-name">Primary (theme.ts)</div><div class="compare-hex">#111111 — black, no brand</div></div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-swatch" style="background:#2563EB"></div>
+        <div><div class="compare-name">Primary (tailwind)</div><div class="compare-hex">#2563EB — mismatched</div></div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-swatch" style="background:#10B981"></div>
+        <div><div class="compare-name">Success</div><div class="compare-hex">#10B981 — vivid / neon</div></div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-swatch" style="background:#EF4444"></div>
+        <div><div class="compare-name">Danger</div><div class="compare-hex">#EF4444 — vivid red</div></div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-swatch" style="background:#111827"></div>
+        <div><div class="compare-name">Dark background</div><div class="compare-hex">#111827 — cool gray</div></div>
+      </div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="compare-col">
+      <div class="compare-label" style="color:#7C6FF7">Proposed</div>
+      <div class="compare-row">
+        <div class="compare-swatch" style="background:#7C6FF7"></div>
+        <div><div class="compare-name">Brand (unified)</div><div class="compare-hex">#7C6FF7 — soft violet</div></div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-swatch" style="background:#7C6FF7"></div>
+        <div><div class="compare-name">Tailwind primary</div><div class="compare-hex">#7C6FF7 — in sync ✓</div></div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-swatch" style="background:#4D7C5F"></div>
+        <div><div class="compare-name">Success</div><div class="compare-hex">#4D7C5F — muted sage</div></div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-swatch" style="background:#BE3A50"></div>
+        <div><div class="compare-name">Danger</div><div class="compare-hex">#BE3A50 — muted rose</div></div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-swatch" style="background:#18181B"></div>
+        <div><div class="compare-name">Dark background</div><div class="compare-hex">#18181B — zinc, warmer</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<p style="font-size:11px;color:#D4D4D8;margin-top:52px">LedgerNest palette-preview.html · v2 · minimal</p>
+
+</body>
+</html>

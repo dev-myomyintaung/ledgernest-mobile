@@ -2,6 +2,7 @@ import { View, ScrollView, ActivityIndicator } from 'react-native';
 import { ThemedText } from '@/components/ui/themed-text';
 import { CategoryItem } from './CategoryItem';
 import { Category } from '@/api/endpoints/categories';
+import { semantic } from '@/constants/theme';
 
 export interface CategoryStats {
     transactionCount: number;
@@ -37,7 +38,7 @@ export const CategoryList = ({
     if (error) {
         return (
             <View className="flex-1 justify-center items-center p-4">
-                <ThemedText className="text-red-500 text-center">Failed to load categories</ThemedText>
+                <ThemedText style={{ color: semantic.danger.light }} className="text-center">Failed to load categories</ThemedText>
             </View>
         );
     }
