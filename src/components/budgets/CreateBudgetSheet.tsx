@@ -15,6 +15,7 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useCategories } from "@/hooks/useCategories";
 import { useCreateBudget } from "@/hooks/useBudgets";
 import { useAppCurrency } from "@/hooks/useAppCurrency";
+import { Colors, Typography, zinc } from "@/constants/theme";
 import { Category } from "@/api/endpoints/categories";
 
 interface Props {
@@ -29,12 +30,13 @@ const PERIODS = [
   { value: "yearly", label: "Yearly" },
 ] as const;
 
-const FALLBACK_COLOR = "#71717a";
+const FALLBACK_COLOR = zinc[500];
 
 export function CreateBudgetSheet({ visible, onClose }: Props) {
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const c = Colors[isDark ? "dark" : "light"];
 
   const { data: categories = [] } = useCategories();
   const createBudget = useCreateBudget();
@@ -97,11 +99,11 @@ export function CreateBudgetSheet({ visible, onClose }: Props) {
     borderRadius: 16,
     paddingHorizontal: 16,
     borderWidth: 1,
-    fontSize: 16,
+    fontSize: Typography.size.base,
     textAlignVertical: "center" as const,
-    backgroundColor: isDark ? "#27272a" : "#f9fafb",
-    borderColor: isDark ? "#3f3f46" : "#e4e4e7",
-    color: isDark ? "#f4f4f5" : "#111111",
+    backgroundColor: c.card,
+    borderColor: c.border,
+    color: c.text,
   };
 
   return (
@@ -124,7 +126,7 @@ export function CreateBudgetSheet({ visible, onClose }: Props) {
             left: 0,
             right: 0,
             maxHeight: "90%",
-            backgroundColor: isDark ? "#18181b" : "#ffffff",
+            backgroundColor: c.background,
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
             paddingBottom: Math.max(insets.bottom, 16) + 8,
@@ -136,7 +138,7 @@ export function CreateBudgetSheet({ visible, onClose }: Props) {
               width: 36,
               height: 4,
               borderRadius: 2,
-              backgroundColor: isDark ? "#52525b" : "#d4d4d8",
+              backgroundColor: c.border,
               alignSelf: "center",
               marginTop: 12,
               marginBottom: 20,
@@ -145,14 +147,17 @@ export function CreateBudgetSheet({ visible, onClose }: Props) {
 
           {/* Header */}
           <View className="flex-row justify-between items-center mb-5 px-6">
-            <ThemedText type="defaultSemiBold" style={{ fontSize: 18 }}>
+            <ThemedText
+              type="defaultSemiBold"
+              style={{ fontSize: Typography.size.lg }}
+            >
               New Budget
             </ThemedText>
             <TouchableOpacity onPress={handleClose}>
               <IconSymbol
                 name="xmark.circle.fill"
                 size={28}
-                color={isDark ? "#71717a" : "#a1a1aa"}
+                color={c.icon}
               />
             </TouchableOpacity>
           </View>
@@ -170,7 +175,7 @@ export function CreateBudgetSheet({ visible, onClose }: Props) {
               value={name}
               onChangeText={setName}
               placeholder="e.g. Monthly Groceries"
-              placeholderTextColor={isDark ? "#52525b" : "#a1a1aa"}
+              placeholderTextColor={c.textMuted}
               style={inputStyle}
             />
 
@@ -182,7 +187,7 @@ export function CreateBudgetSheet({ visible, onClose }: Props) {
               value={amount}
               onChangeText={setAmount}
               placeholder={`${symbol} 0.00`}
-              placeholderTextColor={isDark ? "#52525b" : "#a1a1aa"}
+              placeholderTextColor={c.textMuted}
               keyboardType="decimal-pad"
               style={inputStyle}
             />
@@ -200,30 +205,14 @@ export function CreateBudgetSheet({ visible, onClose }: Props) {
                     onPress={() => setPeriod(p.value)}
                     className="flex-1 h-11 rounded-2xl items-center justify-center border"
                     style={{
-                      backgroundColor: selected
-                        ? isDark
-                          ? "#ffffff"
-                          : "#111111"
-                        : "transparent",
-                      borderColor: selected
-                        ? isDark
-                          ? "#ffffff"
-                          : "#111111"
-                        : isDark
-                          ? "#3f3f46"
-                          : "#d4d4d8",
+                      backgroundColor: selected ? c.primary : "transparent",
+                      borderColor: selected ? c.primary : c.border,
                     }}
                   >
                     <ThemedText
                       className="text-sm font-semibold"
                       style={{
-                        color: selected
-                          ? isDark
-                            ? "#111111"
-                            : "#ffffff"
-                          : isDark
-                            ? "#a1a1aa"
-                            : "#71717a",
+                        color: selected ? c.primaryForeground : c.textSecondary,
                       }}
                     >
                       {p.label}
@@ -247,40 +236,18 @@ export function CreateBudgetSheet({ visible, onClose }: Props) {
                     onPress={() => setCategoryId(cat.id)}
                     className="flex-row items-center gap-2 px-3 py-2 rounded-full border"
                     style={{
-                      backgroundColor: selected
-                        ? isDark
-                          ? "#ffffff"
-                          : "#111111"
-                        : "transparent",
-                      borderColor: selected
-                        ? isDark
-                          ? "#ffffff"
-                          : "#111111"
-                        : isDark
-                          ? "#3f3f46"
-                          : "#d4d4d8",
+                      backgroundColor: selected ? c.primaryLight : "transparent",
+                      borderColor: selected ? c.primary : c.border,
                     }}
                   >
                     <View
                       className="w-2 h-2 rounded-full"
-                      style={{
-                        backgroundColor: selected
-                          ? isDark
-                            ? "#111111"
-                            : "#ffffff"
-                          : color,
-                      }}
+                      style={{ backgroundColor: color }}
                     />
                     <ThemedText
                       className="text-sm"
                       style={{
-                        color: selected
-                          ? isDark
-                            ? "#111111"
-                            : "#ffffff"
-                          : isDark
-                            ? "#d4d4d8"
-                            : "#3f3f46",
+                        color: selected ? c.primary : c.text,
                       }}
                     >
                       {cat.name}
@@ -296,18 +263,18 @@ export function CreateBudgetSheet({ visible, onClose }: Props) {
             <TouchableOpacity
               onPress={handleCreate}
               disabled={createBudget.isPending}
-              className="h-13 rounded-2xl items-center justify-center"
+              className="rounded-2xl items-center justify-center"
               style={{
-                backgroundColor: isDark ? "#ffffff" : "#111111",
+                backgroundColor: c.primary,
                 height: 52,
               }}
             >
               {createBudget.isPending ? (
-                <ActivityIndicator color={isDark ? "#111111" : "#ffffff"} />
+                <ActivityIndicator color={c.primaryForeground} />
               ) : (
                 <ThemedText
                   className="font-semibold text-base"
-                  style={{ color: isDark ? "#111111" : "#ffffff" }}
+                  style={{ color: c.primaryForeground }}
                 >
                   Create Budget
                 </ThemedText>
