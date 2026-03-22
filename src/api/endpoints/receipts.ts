@@ -43,15 +43,22 @@ export interface ConfirmReceiptItem {
     totalPrice: number;
 }
 
+export interface AssignedReceiptItem {
+    itemId: string;
+    assignedToUserId: string;
+}
+
 export interface ConfirmReceiptRequest {
     categoryId: string;
     budgetId?: string;
     items: ConfirmReceiptItem[];
+    assignedItems?: AssignedReceiptItem[];
 }
 
 export interface ConfirmReceiptResponse {
     receiptId: string;
     transactionsCreated: number;
+    sharedItemsCreated: number;
 }
 
 // ── API functions ──────────────────────────────────────────────────────────

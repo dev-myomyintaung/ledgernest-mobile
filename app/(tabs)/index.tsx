@@ -1,4 +1,5 @@
 import { View, ScrollView, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { Link, useRouter, useFocusEffect } from 'expo-router';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
@@ -54,7 +55,9 @@ export default function DashboardScreen() {
 
   const user = useAuthStore((s) => s.user);
   const { format } = useAppCurrency();
-  const firstName = user?.firstName ?? 'there';
+  const firstName = (user as any)?.displayName || user?.firstName || 'there';
+  const avatarUrl = (user as any)?.avatarUrl as string | null | undefined;
+  const initials = ((user as any)?.displayName || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || '?').slice(0, 2).toUpperCase();
 
   // ── Data ──────────────────────────────────────────────────────────────────
   const { data: monthTxs = [], isLoading: txLoading, refetch: refetchTx } = useTransactions({
@@ -150,10 +153,20 @@ export default function DashboardScreen() {
           <TouchableOpacity
             onPress={() => router.push('/profile')}
             activeOpacity={0.7}
-            className="w-10 h-10 rounded-full items-center justify-center"
-            style={{ backgroundColor: isDark ? zinc[800] : zinc[100] }}
+            style={{
+              width: 40, height: 40, borderRadius: 20, overflow: 'hidden',
+              backgroundColor: isDark ? brand[800] : brand[100],
+              alignItems: 'center', justifyContent: 'center',
+              borderWidth: 2, borderColor: isDark ? brand[400] : brand[500],
+            }}
           >
-            <IconSymbol name="person.fill" size={18} color={Colors[cs].icon} />
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} style={{ width: 40, height: 40 }} contentFit="cover" />
+            ) : (
+              <ThemedText style={{ fontSize: 15, fontWeight: '700', color: isDark ? brand[200] : brand[700] }}>
+                {initials}
+              </ThemedText>
+            )}
           </TouchableOpacity>
         </View>
 

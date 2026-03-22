@@ -1,4 +1,5 @@
 import { Alert, Modal, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -80,9 +81,12 @@ export default function SettingsScreen() {
 
   const [currencySheetVisible, setCurrencySheetVisible] = useState(false);
 
-  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ');
-  const initials =
-    [user?.firstName?.[0], user?.lastName?.[0]].filter(Boolean).join('').toUpperCase() || '?';
+  const fullName =
+    (user as any)?.displayName ||
+    [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
+    'Budget User';
+  const initials = fullName.slice(0, 2).toUpperCase();
+  const avatarUrl = (user as any)?.avatarUrl as string | null | undefined;
 
   const handleLogout = () => {
     Alert.alert('Log out', 'Are you sure you want to log out?', [
@@ -117,18 +121,26 @@ export default function SettingsScreen() {
 
         {/* Profile card */}
         <View className="px-4 pt-2 pb-3">
-          <View className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-5">
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => router.push('/profile')}
+            className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-5"
+          >
             <View className="flex-row items-center gap-4">
               <View
-                className="w-14 h-14 rounded-2xl items-center justify-center"
-                style={{ backgroundColor: isDark ? brand[400] : brand[500] }}
+                className="w-14 h-14 rounded-2xl overflow-hidden items-center justify-center"
+                style={{ backgroundColor: isDark ? brand[800] : brand[100] }}
               >
-                <ThemedText
-                  className="text-xl font-bold"
-                  style={{ color: isDark ? zinc[900] : '#ffffff' }}
-                >
-                  {initials}
-                </ThemedText>
+                {avatarUrl ? (
+                  <Image source={{ uri: avatarUrl }} style={{ width: 56, height: 56 }} contentFit="cover" />
+                ) : (
+                  <ThemedText
+                    className="text-xl font-bold"
+                    style={{ color: isDark ? brand[200] : brand[700] }}
+                  >
+                    {initials}
+                  </ThemedText>
+                )}
               </View>
               <View className="flex-1">
                 <ThemedText type="defaultSemiBold" className="text-lg">
@@ -137,6 +149,29 @@ export default function SettingsScreen() {
                 <ThemedText className="text-sm text-zinc-500">{user?.email ?? ''}</ThemedText>
               </View>
             </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* Social */}
+        <View className="px-4 pb-3">
+          <ThemedText className="text-xs tracking-widest text-zinc-400 mb-2 px-1">SOCIAL</ThemedText>
+          <View className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 overflow-hidden">
+            <SettingsRow
+              icon="person.2.fill"
+              label="Find People"
+              onPress={() => router.push('/find-people')}
+            />
+            <SettingsRow
+              icon="person.badge.plus"
+              label="Connections"
+              onPress={() => router.push('/settings/followers')}
+            />
+            <SettingsRow
+              icon="tray.fill"
+              label="Shared Items"
+              onPress={() => router.push('/shared-inbox')}
+              isLast
+            />
           </View>
         </View>
 

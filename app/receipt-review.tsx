@@ -22,9 +22,11 @@ import {
   useProcessReceipt,
   useReceipt,
 } from "@/hooks/useReceipts";
+import { useMutualFollows } from "@/hooks/useUsers";
 import { SERVER_BASE_URL } from "@/api/client";
 import { Colors, zinc, brand, semantic } from "@/constants/theme";
 import { hexToRgba } from "@/utils/format";
+import { PublicUser } from "@/api/endpoints/users";
 
 type EditableItem = {
   id: string;
@@ -32,6 +34,7 @@ type EditableItem = {
   quantity: string;
   price: string;
   totalPrice: string;
+  assignedToUser?: PublicUser;
 };
 
 const parseNumber = (value: string) =>
@@ -55,6 +58,31 @@ function statusBg(status: string | undefined, isDark: boolean) {
   }
 }
 
+function userDisplayName(user: PublicUser) {
+  return user.displayName || [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email || "Unknown";
+}
+
+function InitialsAvatar({ user, size = 28, isDark }: { user: PublicUser; size?: number; isDark: boolean }) {
+  const name = userDisplayName(user);
+  const initials = name.slice(0, 2).toUpperCase();
+  return (
+    <View
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        backgroundColor: isDark ? brand[700] : brand[100],
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <ThemedText style={{ fontSize: size * 0.4, fontWeight: "700", color: isDark ? brand[200] : brand[700] }}>
+        {initials}
+      </ThemedText>
+    </View>
+  );
+}
+
 export default function ReceiptReviewScreen() {
   const router      = useRouter();
   const insets      = useSafeAreaInsets();
@@ -72,12 +100,15 @@ export default function ReceiptReviewScreen() {
 
   const { data: receipt, isLoading, refetch } = useReceipt(receiptId);
   const { data: categories = [] } = useCategories();
+  const { data: following = [] }  = useMutualFollows();
   const processReceipt = useProcessReceipt();
   const confirmReceipt = useConfirmReceipt();
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [items, setItems]                           = useState<EditableItem[]>([]);
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+  // Assign picker state
+  const [assignPickerItemId, setAssignPickerItemId] = useState<string | null>(null);
 
   const expenseCategories = useMemo(
     () => categories.filter((c) => c.type === "expense"),
@@ -105,6 +136,13 @@ export default function ReceiptReviewScreen() {
 
   const updateItem = (id: string, key: keyof EditableItem, value: string) => {
     setItems((cur) => cur.map((item) => item.id === id ? { ...item, [key]: value } : item));
+  };
+
+  const assignItem = (itemId: string, user: PublicUser | undefined) => {
+    setItems((cur) => cur.map((item) =>
+      item.id === itemId ? { ...item, assignedToUser: user } : item
+    ));
+    setAssignPickerItemId(null);
   };
 
   const handleProcess = async () => {
@@ -144,12 +182,26 @@ export default function ReceiptReviewScreen() {
       Alert.alert("Invalid item values", "Each item must have valid positive numbers.");
       return;
     }
+
+    const assignedItems = items
+      .filter((i) => i.assignedToUser)
+      .map((i) => ({ itemId: i.id, assignedToUserId: i.assignedToUser!.id }));
+
     try {
       const result = await confirmReceipt.mutateAsync({
         id:   receiptId,
-        data: { categoryId: selectedCategoryId, items: parsedItems },
+        data: {
+          categoryId: selectedCategoryId,
+          items: parsedItems,
+          ...(assignedItems.length > 0 && { assignedItems }),
+        },
       });
-      Alert.alert("Saved", `${result.transactionsCreated} transactions created.`, [
+      const sharedCount = result.sharedItemsCreated ?? 0;
+      const txCount     = result.transactionsCreated;
+      const message     = sharedCount > 0
+        ? `${txCount} transaction(s) created. ${sharedCount} item(s) sent to recipients.`
+        : `${txCount} transaction(s) created.`;
+      Alert.alert("Saved", message, [
         { text: "OK", onPress: () => router.replace("/(tabs)/transactions") },
       ]);
     } catch {
@@ -158,7 +210,10 @@ export default function ReceiptReviewScreen() {
   };
 
   const calculatedTotal = useMemo(
-    () => items.reduce((sum, item) => sum + (parseFloat(item.totalPrice) || 0), 0),
+    () => items.reduce((sum, item) => {
+      if (item.assignedToUser) return sum; // excluded from sender total
+      return sum + (parseFloat(item.totalPrice) || 0);
+    }, 0),
     [items],
   );
   const scannedTotal = receipt ? parseFloat(receipt.totalAmount) : null;
@@ -176,6 +231,9 @@ export default function ReceiptReviewScreen() {
   } as const;
 
   const inputBg = isDark ? zinc[900] : Colors[cs].background;
+
+  // Item for which the assign picker is open
+  const pickerItem = items.find((i) => i.id === assignPickerItemId);
 
   if (!receiptId) {
     return (
@@ -418,7 +476,7 @@ export default function ReceiptReviewScreen() {
                 style={{ backgroundColor: isDark ? zinc[700] : zinc[200] }}
               >
                 <View>
-                  <ThemedText className="text-xs text-zinc-400 mb-0.5">Calculated</ThemedText>
+                  <ThemedText className="text-xs text-zinc-400 mb-0.5">Your total</ThemedText>
                   <ThemedText className="text-sm font-bold">
                     {calculatedTotal.toFixed(2)}
                   </ThemedText>
@@ -454,56 +512,109 @@ export default function ReceiptReviewScreen() {
               <ThemedText className="text-zinc-500 text-sm">No OCR items yet.</ThemedText>
             ) : (
               <View style={{ gap: 8 }}>
-                {items.map((item) => (
-                  <View
-                    key={item.id}
-                    style={{
-                      backgroundColor: isDark ? zinc[700] : zinc[200],
-                      borderRadius: 14,
-                      padding: 12,
-                    }}
-                  >
-                    {/* Item name */}
-                    <TextInput
-                      value={item.name}
-                      onChangeText={(v) => updateItem(item.id, "name", v)}
-                      placeholder="Item name"
-                      placeholderTextColor={zinc[400]}
+                {items.map((item) => {
+                  const isAssigned = !!item.assignedToUser;
+                  return (
+                    <View
+                      key={item.id}
                       style={{
-                        fontSize: 15,
-                        fontWeight: "600",
-                        color: isDark ? zinc[50] : zinc[900],
-                        marginBottom: 10,
+                        backgroundColor: isDark ? zinc[700] : zinc[200],
+                        borderRadius: 14,
+                        padding: 12,
+                        opacity: isAssigned ? 0.7 : 1,
                       }}
-                    />
-                    {/* Qty / Price / Total */}
-                    <View style={{ flexDirection: "row", gap: 8 }}>
-                      {(
-                        [
-                          { key: "quantity" as const, label: "Qty" },
-                          { key: "price"    as const, label: "Price" },
-                          { key: "totalPrice" as const, label: "Total" },
-                        ] as const
-                      ).map(({ key, label }) => (
-                        <View key={key} style={{ flex: 1 }}>
-                          <ThemedText className="text-xs text-zinc-400 mb-1">{label}</ThemedText>
-                          <TextInput
-                            value={item[key]}
-                            keyboardType="decimal-pad"
-                            onChangeText={(v) => updateItem(item.id, key, v)}
+                    >
+                      {/* Item name + assign button */}
+                      <View className="flex-row items-center justify-between mb-2">
+                        <TextInput
+                          value={item.name}
+                          onChangeText={(v) => updateItem(item.id, "name", v)}
+                          placeholder="Item name"
+                          placeholderTextColor={zinc[400]}
+                          editable={!isAssigned}
+                          style={{
+                            flex: 1,
+                            fontSize: 15,
+                            fontWeight: "600",
+                            color: isDark ? zinc[50] : zinc[900],
+                          }}
+                        />
+                        {/* Assign to button */}
+                        {receipt?.status !== "confirmed" && following.length > 0 && (
+                          <TouchableOpacity
+                            activeOpacity={0.7}
+                            onPress={() => setAssignPickerItemId(item.id)}
                             style={{
-                              height: 38, borderRadius: 10,
-                              paddingHorizontal: 10,
-                              backgroundColor: inputBg,
-                              color: isDark ? zinc[50] : zinc[900],
-                              fontSize: 14,
+                              flexDirection: "row", alignItems: "center",
+                              gap: 5, paddingHorizontal: 8, paddingVertical: 4,
+                              borderRadius: 12, borderWidth: 1,
+                              borderColor: isAssigned
+                                ? isDark ? brand[600] : brand[300]
+                                : isDark ? zinc[600] : zinc[300],
+                              backgroundColor: isAssigned
+                                ? isDark ? hexToRgba(brand[500], 0.2) : hexToRgba(brand[500], 0.08)
+                                : "transparent",
                             }}
-                          />
-                        </View>
-                      ))}
+                          >
+                            {isAssigned ? (
+                              <>
+                                <InitialsAvatar user={item.assignedToUser!} size={18} isDark={isDark} />
+                                <ThemedText
+                                  className="text-xs font-semibold"
+                                  style={{ color: isDark ? brand[300] : brand[600] }}
+                                  numberOfLines={1}
+                                >
+                                  {userDisplayName(item.assignedToUser!).split(" ")[0]}
+                                </ThemedText>
+                                <IconSymbol name="xmark" size={10} color={isDark ? brand[300] : brand[600]} />
+                              </>
+                            ) : (
+                              <>
+                                <IconSymbol name="person.badge.plus" size={14} color={isDark ? zinc[400] : zinc[500]} />
+                                <ThemedText className="text-xs text-zinc-400">Assign</ThemedText>
+                              </>
+                            )}
+                          </TouchableOpacity>
+                        )}
+                      </View>
+
+                      {/* Assigned badge */}
+                      {isAssigned && (
+                        <ThemedText className="text-xs text-zinc-400 mb-2">
+                          Excluded from your total — sent to {userDisplayName(item.assignedToUser!)}
+                        </ThemedText>
+                      )}
+
+                      {/* Qty / Price / Total */}
+                      <View style={{ flexDirection: "row", gap: 8 }}>
+                        {(
+                          [
+                            { key: "quantity" as const, label: "Qty" },
+                            { key: "price"    as const, label: "Price" },
+                            { key: "totalPrice" as const, label: "Total" },
+                          ] as const
+                        ).map(({ key, label }) => (
+                          <View key={key} style={{ flex: 1 }}>
+                            <ThemedText className="text-xs text-zinc-400 mb-1">{label}</ThemedText>
+                            <TextInput
+                              value={item[key]}
+                              keyboardType="decimal-pad"
+                              editable={!isAssigned}
+                              onChangeText={(v) => updateItem(item.id, key, v)}
+                              style={{
+                                height: 38, borderRadius: 10,
+                                paddingHorizontal: 10,
+                                backgroundColor: inputBg,
+                                color: isDark ? zinc[50] : zinc[900],
+                                fontSize: 14,
+                              }}
+                            />
+                          </View>
+                        ))}
+                      </View>
                     </View>
-                  </View>
-                ))}
+                  );
+                })}
               </View>
             )}
           </View>
@@ -550,6 +661,119 @@ export default function ReceiptReviewScreen() {
             )}
           </View>
         </View>
+      </Modal>
+
+      {/* ── Assign-to picker sheet ─────────────────────────────── */}
+      <Modal
+        visible={!!assignPickerItemId}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setAssignPickerItemId(null)}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.45)" }}
+          onPress={() => setAssignPickerItemId(null)}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            style={{
+              position: "absolute", bottom: 0, left: 0, right: 0,
+              backgroundColor: isDark ? zinc[900] : Colors[cs].background,
+              borderTopLeftRadius: 24, borderTopRightRadius: 24,
+              paddingBottom: Math.max(insets.bottom, 16) + 8,
+            }}
+          >
+            {/* Handle */}
+            <View
+              style={{
+                width: 36, height: 4, borderRadius: 2,
+                backgroundColor: isDark ? zinc[600] : zinc[300],
+                alignSelf: "center", marginTop: 12, marginBottom: 16,
+              }}
+            />
+
+            {/* Header */}
+            <View className="flex-row justify-between items-center px-6 mb-4">
+              <View>
+                <ThemedText className="text-base font-bold">Assign to</ThemedText>
+                {pickerItem && (
+                  <ThemedText className="text-xs text-zinc-400 mt-0.5" numberOfLines={1}>
+                    {pickerItem.name}
+                  </ThemedText>
+                )}
+              </View>
+              <TouchableOpacity onPress={() => setAssignPickerItemId(null)}>
+                <IconSymbol name="xmark.circle.fill" size={28} color={isDark ? zinc[600] : zinc[300]} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Unassign option if currently assigned */}
+            {pickerItem?.assignedToUser && (
+              <TouchableOpacity
+                onPress={() => assignPickerItemId && assignItem(assignPickerItemId, undefined)}
+                style={{
+                  flexDirection: "row", alignItems: "center", gap: 12,
+                  paddingHorizontal: 20, paddingVertical: 14,
+                  borderBottomWidth: 1, borderBottomColor: isDark ? zinc[800] : zinc[100],
+                }}
+              >
+                <View
+                  style={{
+                    width: 40, height: 40, borderRadius: 20,
+                    backgroundColor: isDark ? zinc[700] : zinc[200],
+                    alignItems: "center", justifyContent: "center",
+                  }}
+                >
+                  <IconSymbol name="xmark" size={16} color={isDark ? zinc[400] : zinc[500]} />
+                </View>
+                <ThemedText className="text-sm font-semibold text-zinc-500">Remove assignment</ThemedText>
+              </TouchableOpacity>
+            )}
+
+            {/* Mutual follows list — only mutual connections can receive items */}
+            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 300 }}>
+              {following.length === 0 && (
+                <View className="items-center py-8 px-6">
+                  <IconSymbol name="person.2" size={28} color={isDark ? zinc[600] : zinc[400]} />
+                  <ThemedText className="text-xs text-zinc-400 mt-2 text-center">
+                    No mutual connections yet.{"\n"}Follow someone and ask them to follow back.
+                  </ThemedText>
+                </View>
+              )}
+              {following.map((user: PublicUser) => {
+                const isSelected = pickerItem?.assignedToUser?.id === user.id;
+                const name = userDisplayName(user);
+                return (
+                  <TouchableOpacity
+                    key={user.id}
+                    onPress={() => assignPickerItemId && assignItem(assignPickerItemId, user)}
+                    style={{
+                      flexDirection: "row", alignItems: "center", gap: 12,
+                      paddingHorizontal: 20, paddingVertical: 14,
+                      borderBottomWidth: 1,
+                      borderBottomColor: isDark ? zinc[800] : zinc[100],
+                      backgroundColor: isSelected
+                        ? isDark ? hexToRgba(brand[500], 0.15) : hexToRgba(brand[500], 0.06)
+                        : "transparent",
+                    }}
+                  >
+                    <InitialsAvatar user={user} size={40} isDark={isDark} />
+                    <View className="flex-1">
+                      <ThemedText className="text-sm font-semibold">{name}</ThemedText>
+                      {user.email && (
+                        <ThemedText className="text-xs text-zinc-400">{user.email}</ThemedText>
+                      )}
+                    </View>
+                    {isSelected && (
+                      <IconSymbol name="checkmark.circle.fill" size={20} color={isDark ? brand[400] : brand[500]} />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
     </ThemedView>
   );

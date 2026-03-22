@@ -47,6 +47,8 @@ export default function RootLayout() {
             <Stack.Screen name="scan" options={{ presentation: 'modal', headerShown: false }} />
             <Stack.Screen name="receipt-review" options={{ presentation: 'modal', headerShown: false }} />
             <Stack.Screen name="profile" options={{ presentation: 'modal', headerShown: false }} />
+            <Stack.Screen name="find-people" options={{ presentation: 'modal', headerShown: false }} />
+            <Stack.Screen name="shared-inbox" options={{ presentation: 'modal', headerShown: false }} />
           </Stack.Protected>
           <Stack.Screen name="(auth)" options={{ headerShown: false, animation: 'none' }} />
         </Stack>

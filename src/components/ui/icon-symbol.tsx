@@ -18,6 +18,10 @@ const MAPPING = {
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
+  'chevron.left': 'chevron-left',
+  'person.fill': 'person',
+  'arrow.up': 'arrow-upward',
+  'arrow.down': 'arrow-downward',
   'viewfinder': 'center-focus-strong', // Mapped to MaterialIcons 'center-focus-strong'
   'chart.bar.fill': 'bar-chart',
   'rectangle.grid.2x2.fill': 'grid-view',
@@ -66,6 +70,16 @@ const MAPPING = {
   'checkmark.circle.fill': 'check-circle',
   'folder': 'folder',
   'plus': 'add',
+  'gearshape.fill': 'settings',
+  'person.2.fill': 'group',
+  'person.slash': 'person-off',
+  'person.badge.plus': 'person-add',
+  'tray.fill': 'move-to-inbox',
+  'tray': 'inbox',
+  'paperplane': 'send',
+  'circle.lefthalf.filled': 'brightness-medium',
+  'tag.fill': 'label',
+  'info.circle.fill': 'info',
 } as IconMapping;
 
 /**
