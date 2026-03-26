@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../store/authStore';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.3:3000/api';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.158:3000/api';
 export const SERVER_BASE_URL = API_URL.replace(/\/api$/, '');
 const API_DEBUG = process.env.EXPO_PUBLIC_API_DEBUG === 'true' || __DEV__;
 let requestCounter = 0;

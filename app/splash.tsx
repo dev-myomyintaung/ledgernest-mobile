@@ -4,6 +4,7 @@ import { useFonts } from 'expo-font';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ui/themed-text';
 import { useAuthStore } from '@/store/authStore';
+import { useOnboardingStore } from '@/store/onboardingStore';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -21,6 +22,8 @@ export default function AppSplashScreen() {
   const hydrate = useAuthStore((state) => state.hydrate);
   const isAuthLoading = useAuthStore((state) => state.isLoading);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const onboardingDone = useOnboardingStore((s) => s.onboardingDone);
+  const onboardingHydrated = useOnboardingStore((s) => s._hasHydrated);
   const opacity = useSharedValue(0);
   const scale = useSharedValue(0.82);
 
@@ -39,18 +42,18 @@ export default function AppSplashScreen() {
   }, [opacity, scale]);
 
   useEffect(() => {
-    if (isAuthLoading || !fontsLoaded) return;
+    if (isAuthLoading || !fontsLoaded || !onboardingHydrated) return;
 
     const timer = setTimeout(() => {
       if (isAuthenticated) {
-        router.replace('/(tabs)');
+        router.replace(onboardingDone ? '/(tabs)' : '/onboarding');
       } else {
         router.replace('/(auth)/login');
       }
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [fontsLoaded, isAuthLoading, isAuthenticated, router]);
+  }, [fontsLoaded, isAuthLoading, isAuthenticated, onboardingDone, onboardingHydrated, router]);
 
   return (
     <View className="flex-1 items-center justify-center bg-[#0b0b0c]">

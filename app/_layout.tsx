@@ -42,6 +42,7 @@ export default function RootLayout() {
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="splash" options={{ headerShown: false, animation: 'none' }} />
           <Stack.Protected guard={isAuthenticated}>
+            <Stack.Screen name="onboarding" options={{ headerShown: false, animation: 'fade' }} />
             <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'none' }} />
             <Stack.Screen name="create-category" options={{ presentation: 'modal', headerShown: false }} />
             <Stack.Screen name="scan" options={{ presentation: 'modal', headerShown: false }} />
