@@ -99,8 +99,12 @@ export function ProductTour() {
   const isLast = step === STEPS.length - 1;
 
   const handleNext = () => {
-    if (isLast) completeTour();
-    else setStep((s) => s + 1);
+    if (isLast) {
+      completeTour();
+      router.push('/scan');
+    } else {
+      setStep((s) => s + 1);
+    }
   };
 
   // Padded spotlight rect (screen-absolute)
@@ -266,7 +270,7 @@ export function ProductTour() {
                   fontWeight: Typography.weight.semibold,
                 }}
               >
-                {isLast ? 'Get exploring' : 'Next'}
+                {isLast ? 'Scan a receipt' : 'Next'}
               </ThemedText>
             </Pressable>
           </View>

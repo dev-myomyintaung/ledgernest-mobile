@@ -11,6 +11,8 @@ import { useAuthStore } from '@/store/authStore';
 import { useSettingsStore, CURRENCIES, CurrencyOption } from '@/store/settingsStore';
 import { useThemeStore } from '@/store/themeStore';
 import { useOnboardingStore } from '@/store/onboardingStore';
+import { TourTarget } from '@/context/TourContext';
+import { SettingsTour } from '@/components/SettingsTour';
 import { authApi } from '@/api/endpoints/auth';
 import { getFloatingTabContentPaddingBottom } from '@/constants/layout';
 import { useState } from 'react';
@@ -79,6 +81,9 @@ export default function SettingsScreen() {
   const themePreference = useThemeStore((s) => s.preference);
   const resetOnboarding = useOnboardingStore((s) => s.__resetOnboarding);
   const resetTour = useOnboardingStore((s) => s.__resetScreensTour);
+  const resetFirstBudgetPrompt = useOnboardingStore((s) => s.__resetFirstBudgetPrompt);
+  const resetScanTour = useOnboardingStore((s) => s.__resetScanTour);
+  const resetSettingsTour = useOnboardingStore((s) => s.__resetSettingsTour);
 
   const themeLabel = themePreference === 'system' ? 'System' : themePreference === 'light' ? 'Light' : 'Dark';
 
@@ -124,6 +129,7 @@ export default function SettingsScreen() {
 
         {/* Profile card */}
         <View className="px-4 pt-2 pb-3">
+          <TourTarget id="settings-profile">
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => router.push('/profile')}
@@ -153,11 +159,13 @@ export default function SettingsScreen() {
               </View>
             </View>
           </TouchableOpacity>
+          </TourTarget>
         </View>
 
         {/* Social */}
         <View className="px-4 pb-3">
           <ThemedText className="text-xs tracking-widest text-zinc-400 mb-2 px-1">SOCIAL</ThemedText>
+          <TourTarget id="settings-social">
           <View className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 overflow-hidden">
             <SettingsRow
               icon="person.2.fill"
@@ -176,6 +184,7 @@ export default function SettingsScreen() {
               isLast
             />
           </View>
+          </TourTarget>
         </View>
 
         {/* Preferences */}
@@ -183,6 +192,7 @@ export default function SettingsScreen() {
           <ThemedText className="text-xs tracking-widest text-zinc-400 mb-2 px-1">
             PREFERENCES
           </ThemedText>
+          <TourTarget id="settings-preferences">
           <View className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 overflow-hidden">
             <SettingsRow
               icon="circle.lefthalf.filled"
@@ -198,11 +208,13 @@ export default function SettingsScreen() {
               isLast
             />
           </View>
+          </TourTarget>
         </View>
 
         {/* Data */}
         <View className="px-4 pb-3">
           <ThemedText className="text-xs tracking-widest text-zinc-400 mb-2 px-1">DATA</ThemedText>
+          <TourTarget id="settings-data">
           <View className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 overflow-hidden">
             <SettingsRow
               icon="tag.fill"
@@ -216,6 +228,7 @@ export default function SettingsScreen() {
               isLast
             />
           </View>
+          </TourTarget>
         </View>
 
         {/* About */}
@@ -248,6 +261,21 @@ export default function SettingsScreen() {
                 icon="eye"
                 label="Reset Product Tour"
                 onPress={() => resetTour()}
+              />
+              <SettingsRow
+                icon="chart.bar"
+                label="Reset First Budget Prompt"
+                onPress={() => resetFirstBudgetPrompt()}
+              />
+              <SettingsRow
+                icon="camera"
+                label="Reset Scan Tour"
+                onPress={() => resetScanTour()}
+              />
+              <SettingsRow
+                icon="gearshape"
+                label="Reset Settings Tour"
+                onPress={() => resetSettingsTour()}
                 isLast
               />
             </View>
@@ -359,6 +387,8 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
+
+      <SettingsTour />
     </ThemedView>
   );
 }

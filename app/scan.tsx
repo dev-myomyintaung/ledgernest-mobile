@@ -10,6 +10,8 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useProcessReceipt, useUploadReceipt } from '@/hooks/useReceipts';
 import { Colors, zinc, brand } from '@/constants/theme';
+import { TourTarget } from '@/context/TourContext';
+import { ScanTour } from '@/components/ScanTour';
 
 type PickSource = 'camera' | 'library';
 
@@ -25,23 +27,23 @@ const getMimeType = (uri: string, fallback?: string | null) => {
 };
 
 const SOURCES = [
-  { source: 'camera'  as const, icon: 'camera.fill' as const, label: 'Camera' },
-  { source: 'library' as const, icon: 'photo.fill'  as const, label: 'Gallery' },
+  { source: 'camera' as const, icon: 'camera.fill' as const, label: 'Camera' },
+  { source: 'library' as const, icon: 'photo.fill' as const, label: 'Gallery' },
 ];
 
 export default function ScanScreen() {
-  const router  = useRouter();
-  const insets  = useSafeAreaInsets();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
-  const isDark  = colorScheme === 'dark';
-  const cs      = colorScheme ?? 'light';
+  const isDark = colorScheme === 'dark';
+  const cs = colorScheme ?? 'light';
 
-  const uploadReceipt  = useUploadReceipt();
+  const uploadReceipt = useUploadReceipt();
   const processReceipt = useProcessReceipt();
 
-  const [previewUri,   setPreviewUri]   = useState<string | null>(null);
-  const [busyMessage,  setBusyMessage]  = useState<string | null>(null);
-  const [failed,       setFailed]       = useState(false);
+  const [previewUri, setPreviewUri] = useState<string | null>(null);
+  const [busyMessage, setBusyMessage] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
 
   const isBusy = uploadReceipt.isPending || processReceipt.isPending;
 
@@ -121,9 +123,9 @@ export default function ScanScreen() {
 
   const card = {
     backgroundColor: isDark ? zinc[800] : zinc[100],
-    borderRadius:    20,
-    borderWidth:     1,
-    borderColor:     isDark ? zinc[700] : zinc[200],
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: isDark ? zinc[700] : zinc[200],
   } as const;
 
   return (
@@ -163,31 +165,31 @@ export default function ScanScreen() {
         {/* Pick source buttons */}
         <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
           {SOURCES.map(({ source, icon, label }) => (
-            <TouchableOpacity
-              key={source}
-              activeOpacity={0.7}
-              disabled={isBusy}
-              onPress={() => pickImage(source)}
-              style={{
-                ...card,
-                flex: 1,
-                paddingVertical: 22,
-                alignItems: 'center',
-                gap: 10,
-                opacity: isBusy ? 0.5 : 1,
-              }}
-            >
-              <View
+            <TourTarget key={source} id={`scan-${source}`} style={{ flex: 1 }}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                disabled={isBusy}
+                onPress={() => pickImage(source)}
                 style={{
-                  width: 48, height: 48, borderRadius: 16,
-                  alignItems: 'center', justifyContent: 'center',
-                  backgroundColor: isDark ? brand[900] : brand[100],
+                  ...card,
+                  paddingVertical: 22,
+                  alignItems: 'center',
+                  gap: 10,
+                  opacity: isBusy ? 0.5 : 1,
                 }}
               >
-                <IconSymbol name={icon} size={22} color={isDark ? brand[400] : brand[500]} />
-              </View>
-              <ThemedText className="text-sm font-semibold">{label}</ThemedText>
-            </TouchableOpacity>
+                <View
+                  style={{
+                    width: 48, height: 48, borderRadius: 16,
+                    alignItems: 'center', justifyContent: 'center',
+                    backgroundColor: isDark ? brand[900] : brand[100],
+                  }}
+                >
+                  <IconSymbol name={icon} size={22} color={isDark ? brand[400] : brand[500]} />
+                </View>
+                <ThemedText className="text-sm font-semibold">{label}</ThemedText>
+              </TouchableOpacity>
+            </TourTarget>
           ))}
         </View>
 
@@ -244,6 +246,8 @@ export default function ScanScreen() {
           )}
         </View>
       </View>
+
+      <ScanTour />
     </ThemedView>
   );
 }

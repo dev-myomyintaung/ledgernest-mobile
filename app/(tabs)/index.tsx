@@ -15,6 +15,7 @@ import { useAuthStore } from '@/store/authStore';
 import { hexToRgba } from '@/utils/format';
 import { useMemo, useCallback } from 'react';
 import { Colors, zinc, brand } from '@/constants/theme';
+import { FirstBudgetPrompt } from '@/components/FirstBudgetPrompt';
 
 const FALLBACK_COLOR = zinc[500];
 
@@ -458,6 +459,8 @@ export default function DashboardScreen() {
         </View>
 
       </ScrollView>
+
+      <FirstBudgetPrompt />
     </ThemedView>
   );
 }
