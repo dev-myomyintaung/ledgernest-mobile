@@ -10,6 +10,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuthStore } from '@/store/authStore';
 import { useSettingsStore, CURRENCIES, CurrencyOption } from '@/store/settingsStore';
 import { useThemeStore } from '@/store/themeStore';
+import { useOnboardingStore } from '@/store/onboardingStore';
 import { authApi } from '@/api/endpoints/auth';
 import { getFloatingTabContentPaddingBottom } from '@/constants/layout';
 import { useState } from 'react';
@@ -76,6 +77,8 @@ export default function SettingsScreen() {
   const currency = useSettingsStore((s) => s.currency);
   const setCurrency = useSettingsStore((s) => s.setCurrency);
   const themePreference = useThemeStore((s) => s.preference);
+  const resetOnboarding = useOnboardingStore((s) => s.__resetOnboarding);
+  const resetTour = useOnboardingStore((s) => s.__resetScreensTour);
 
   const themeLabel = themePreference === 'system' ? 'System' : themePreference === 'light' ? 'Light' : 'Dark';
 
@@ -227,6 +230,29 @@ export default function SettingsScreen() {
             />
           </View>
         </View>
+
+        {/* Dev tools — only in development builds */}
+        {__DEV__ && (
+          <View className="px-4 pb-3">
+            <ThemedText className="text-xs tracking-widest text-zinc-400 mb-2 px-1">DEV</ThemedText>
+            <View className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 overflow-hidden">
+              <SettingsRow
+                icon="arrow.counterclockwise"
+                label="Reset Onboarding"
+                onPress={() => {
+                  resetOnboarding();
+                  router.replace('/onboarding');
+                }}
+              />
+              <SettingsRow
+                icon="eye"
+                label="Reset Product Tour"
+                onPress={() => resetTour()}
+                isLast
+              />
+            </View>
+          </View>
+        )}
 
         {/* Account */}
         <View className="px-4 pb-2">

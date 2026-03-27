@@ -11,6 +11,7 @@ import {
     getFloatingTabBottomOffset,
 } from '@/constants/layout';
 import { Colors, zinc } from '@/constants/theme';
+import { TourTarget } from '@/context/TourContext';
 
 const TAB_HEIGHT = FLOATING_TAB_DOCK_HEIGHT;
 const CENTER_BUTTON_SIZE = FLOATING_TAB_FAB_SIZE;
@@ -67,18 +68,21 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                         return (
                             <React.Fragment key={route.key}>
                                 {index === 2 ? <View style={styles.spacer} /> : null}
-                                <TouchableOpacity
-                                    accessibilityRole="button"
-                                    accessibilityState={isFocused ? { selected: true } : {}}
-                                    accessibilityLabel={options.tabBarAccessibilityLabel}
-                                    onPress={onPress}
-                                    style={styles.tabItem}>
-                                    {options.tabBarIcon?.({
-                                        focused: isFocused,
-                                        color: isFocused ? activeColor : inactiveColor,
-                                        size: 24,
-                                    })}
-                                </TouchableOpacity>
+                                <TourTarget id={`tab-${route.name}`} style={{ flex: 1 }}>
+                                    <TouchableOpacity
+                                        accessibilityRole="button"
+                                        accessibilityState={isFocused ? { selected: true } : {}}
+                                        accessibilityLabel={options.tabBarAccessibilityLabel}
+                                        onPress={onPress}
+                                        hitSlop={{ top: 12, bottom: 12, left: 16, right: 16 }}
+                                        style={styles.tabItem}>
+                                        {options.tabBarIcon?.({
+                                            focused: isFocused,
+                                            color: isFocused ? activeColor : inactiveColor,
+                                            size: 24,
+                                        })}
+                                    </TouchableOpacity>
+                                </TourTarget>
                             </React.Fragment>
                         );
                     })}
@@ -93,18 +97,21 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                     },
                 ]}
                 pointerEvents="box-none">
-                <TouchableOpacity
-                    style={[styles.fab, { backgroundColor: fabBackground }]}
-                    onPress={() => {
-                        const parentNavigation = navigation.getParent();
-                        if (parentNavigation) {
-                            parentNavigation.navigate('scan' as never);
-                            return;
-                        }
-                        router.push('/scan');
-                    }}>
-                    <IconSymbol name="viewfinder" size={28} color={fabIconColor} />
-                </TouchableOpacity>
+                <TourTarget id="tab-fab">
+                    <TouchableOpacity
+                        style={[styles.fab, { backgroundColor: fabBackground }]}
+                        hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                        onPress={() => {
+                            const parentNavigation = navigation.getParent();
+                            if (parentNavigation) {
+                                parentNavigation.navigate('scan' as never);
+                                return;
+                            }
+                            router.push('/scan');
+                        }}>
+                        <IconSymbol name="viewfinder" size={28} color={fabIconColor} />
+                    </TouchableOpacity>
+                </TourTarget>
             </View>
         </View>
     );

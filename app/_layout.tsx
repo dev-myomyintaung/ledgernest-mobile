@@ -10,6 +10,8 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuthStore } from '../src/store/authStore';
 import { useThemeStore } from '../src/store/themeStore';
+import { TourProvider } from '../src/context/TourContext';
+import { ProductTour } from '../src/components/ProductTour';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -36,25 +38,28 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeSync />
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="splash" options={{ headerShown: false, animation: 'none' }} />
-          <Stack.Protected guard={isAuthenticated}>
-            <Stack.Screen name="onboarding" options={{ headerShown: false, animation: 'fade' }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'none' }} />
-            <Stack.Screen name="create-category" options={{ presentation: 'modal', headerShown: false }} />
-            <Stack.Screen name="scan" options={{ presentation: 'modal', headerShown: false }} />
-            <Stack.Screen name="receipt-review" options={{ presentation: 'modal', headerShown: false }} />
-            <Stack.Screen name="profile" options={{ presentation: 'modal', headerShown: false }} />
-            <Stack.Screen name="find-people" options={{ presentation: 'modal', headerShown: false }} />
-            <Stack.Screen name="shared-inbox" options={{ presentation: 'modal', headerShown: false }} />
-          </Stack.Protected>
-          <Stack.Screen name="(auth)" options={{ headerShown: false, animation: 'none' }} />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
+      <TourProvider>
+        <ThemeSync />
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="splash" options={{ headerShown: false, animation: 'none' }} />
+            <Stack.Protected guard={isAuthenticated}>
+              <Stack.Screen name="onboarding" options={{ headerShown: false, animation: 'fade' }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'none' }} />
+              <Stack.Screen name="create-category" options={{ presentation: 'modal', headerShown: false }} />
+              <Stack.Screen name="scan" options={{ presentation: 'modal', headerShown: false }} />
+              <Stack.Screen name="receipt-review" options={{ presentation: 'modal', headerShown: false }} />
+              <Stack.Screen name="profile" options={{ presentation: 'modal', headerShown: false }} />
+              <Stack.Screen name="find-people" options={{ presentation: 'modal', headerShown: false }} />
+              <Stack.Screen name="shared-inbox" options={{ presentation: 'modal', headerShown: false }} />
+            </Stack.Protected>
+            <Stack.Screen name="(auth)" options={{ headerShown: false, animation: 'none' }} />
+          </Stack>
+          <StatusBar style="auto" />
+          <ProductTour />
+        </ThemeProvider>
+      </TourProvider>
     </QueryClientProvider>
   );
 }
